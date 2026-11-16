@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ASTRAHCare By Next-Us OS  | Autonomous Medical HUD (Simulation) BY Next-Ux</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050914;--card:rgba(22,33,54,.85);--bd:rgba(56,189,248,.18);--bs:rgba(255,255,255,.09);--cy:#38BDF8;--bl:#2563EB;--gr:#10B981;--am:#F59E0B;--rd:#EF4444;--tx:#F8FAFC;--mu:#94A3B8;--hf:'Space Grotesk',system-ui,sans-serif;--mf:'JetBrains Mono',ui-monospace,monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-padding-top:env(safe-area-inset-top,0)}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg) radial-gradient(circle at 12% 10%,rgba(56,189,248,.14),transparent 38%),radial-gradient(circle at 88% 88%,rgba(16,185,129,.11),transparent 40%);color:var(--tx);min-height:100vh;overflow-x:hidden}
+button,select,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#toasts{position:fixed;bottom:20px;right:20px;z-index:400;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:rgba(10,16,30,.96);border:1px solid var(--bd);border-left:4px solid var(--cy);padding:12px 16px;border-radius:10px;font-size:.84rem;font-weight:600;max-width:340px}
+.demo{flex:1;min-width:240px;max-width:640px;margin:0 auto;background:rgba(245,158,11,.15);border:1px solid var(--am);border-radius:10px;color:#FDE68A;text-align:center;font-size:.72rem;font-weight:700;padding:6px 12px;line-height:1.35}
+header{background:rgba(6,10,22,.94);border-bottom:1px solid var(--bd);padding:12px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:60}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--hf);font-weight:700;font-size:1.15rem}
+.badge{width:42px;height:42px;border-radius:10px;overflow:hidden;flex-shrink:0;border:1px solid var(--bd);background:#050914}
+.badge img{width:100%;height:100%;object-fit:cover;display:block}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.b1{background:rgba(56,189,248,.14);border:1px solid var(--cy);color:var(--cy);padding:8px 12px;border-radius:10px;font-size:.79rem;font-weight:700}
+.b1.on{background:rgba(16,185,129,.2);border-color:var(--gr);color:#34D399}
+.b2{background:var(--card);border:1px solid var(--bs);color:var(--mu);padding:8px 11px;border-radius:10px;font-size:.78rem;font-weight:700}
+.b2.on,.b2:hover{border-color:var(--am);color:#FBBF24}
+.crew{display:flex;background:rgba(10,16,30,.95);border:1px solid var(--bs);border-radius:10px;padding:3px}
+.crew button{background:transparent;border:0;color:var(--mu);padding:6px 10px;border-radius:7px;font-size:.77rem;font-weight:700}
+.crew button.on{background:var(--bl);color:#fff}
+select{background:var(--card);border:1px solid var(--bd);color:var(--tx);padding:8px 10px;border-radius:10px;font-size:.78rem}
+.sos{background:linear-gradient(135deg,#EF4444,#B91C1C);color:#fff;border:1px solid #FCA5A5;padding:8px 15px;border-radius:10px;font-family:var(--hf);font-weight:700;font-size:.82rem}
+.wrap{max-width:1560px;margin:0 auto;padding:18px 22px 40px;display:grid;grid-template-columns:280px minmax(0,1fr);gap:18px}
+.main{min-width:0}
+.side{position:sticky;top:84px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+@media(max-width:980px){.wrap{grid-template-columns:1fr}.side{position:static;max-height:none}}
+.sbox{background:var(--card);border:1px solid var(--bs);border-radius:14px;padding:12px}
+.sbox h4{font-family:var(--hf);font-size:.82rem;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.sbox h4 small{font-size:.62rem;color:var(--mu);font-family:inherit;font-weight:600}
+.side .b1,.side .b2{width:100%;text-align:left;margin-top:6px;white-space:normal}
+.side .b1:first-of-type{margin-top:0}
+.side select{width:100%}
+.cm{width:100%;display:flex;align-items:center;gap:8px;text-align:left;color:inherit;background:rgba(10,16,30,.78);border:1px solid var(--bs);border-radius:11px;padding:9px 10px;margin-bottom:6px}
+.cm.on{border-color:var(--cy);background:rgba(56,189,248,.16)}
+.cm .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cmt{flex:1;min-width:0;display:flex;flex-direction:column}
+.cmt strong{font-size:.82rem}
+.cmt small{font-size:.68rem;color:var(--mu);line-height:1.3}
+nav{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+nav button{background:var(--card);border:1px solid var(--bs);color:var(--mu);padding:10px 16px;border-radius:12px;font-weight:700;font-size:.85rem;display:flex;gap:6px;align-items:center}
+nav button.on{background:rgba(37,99,235,.3);border-color:var(--cy);color:#fff}
+.cnt{background:var(--cy);color:#050914;font-size:.7rem;font-weight:800;padding:1px 6px;border-radius:99px}
+.view{display:none}.view.on{display:block}
+.vitals{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:16px}
+.vc{background:var(--card);border:1px solid var(--bs);border-radius:15px;padding:16px;position:relative;overflow:hidden}
+.vc::after{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--gr)}
+.vc.amber::after{background:var(--am)}.vc.red::after{background:var(--rd)}
+.vt{display:flex;justify-content:space-between;font-size:.73rem;font-weight:700;color:var(--mu);margin-bottom:6px}
+.vn{font-family:var(--hf);font-size:1.65rem;font-weight:700;margin-bottom:8px}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.72rem;font-weight:700}
+.tag.green{background:rgba(16,185,129,.18);color:#34D399}.tag.amber{background:rgba(245,158,11,.18);color:#FBBF24}.tag.red{background:rgba(239,68,68,.18);color:#F87171}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+@media(max-width:920px){.grid2{grid-template-columns:1fr}}
+.box{background:var(--card);border:1px solid var(--bs);border-radius:16px;padding:18px}
+.bh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--hf);font-size:.96rem;gap:8px;flex-wrap:wrap}
+#ecg{width:100%;height:115px;background:rgba(5,9,20,.85);border-radius:12px;border:1px solid var(--bd);margin-bottom:12px;display:block}
+.ble{font-family:var(--mf);font-size:.74rem;color:var(--cy);background:rgba(5,9,20,.7);padding:8px 12px;border-radius:8px;margin-bottom:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.env{display:flex;align-items:center;gap:12px;background:rgba(56,189,248,.09);border:1px solid var(--bd);padding:11px 13px;border-radius:12px;font-size:.83rem;margin-bottom:12px}
+.hz{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.hz{grid-template-columns:1fr}}
+.hzi{background:rgba(5,9,20,.55);padding:9px 11px;border-radius:10px;border:1px solid var(--bs)}
+.hzt{display:flex;justify-content:space-between;font-size:.74rem;font-weight:700;margin-bottom:5px}
+.trk{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.fill{height:100%;border-radius:99px;transition:width .5s,background .3s}
+.qi{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.qi label{display:block;font-size:.73rem;color:var(--mu);margin-bottom:4px;font-weight:600}
+.qi input{width:100%;background:rgba(5,9,20,.88);border:1px solid var(--bs);color:#fff;padding:8px 10px;border-radius:8px;font-family:var(--mf);font-weight:700}
+.ms{background:rgba(5,9,20,.72);border-left:3px solid var(--cy);padding:11px 14px;border-radius:0 10px 10px 0;font-size:.86rem;line-height:1.45}
+.ms strong{display:block;font-size:.73rem;text-transform:uppercase;letter-spacing:.5px;color:var(--cy);margin-bottom:3px}
+.ba{width:100%;margin-top:12px;padding:11px;border-radius:10px;border:0;background:linear-gradient(135deg,var(--cy),var(--bl));color:#050914;font-weight:800;font-size:.85rem}
+.anat{display:grid;grid-template-columns:235px 300px 1fr;gap:16px}
+@media(max-width:1024px){.anat{grid-template-columns:1fr}}
+.op{width:100%;background:rgba(10,16,30,.78);border:1px solid var(--bs);color:#fff;padding:11px 13px;border-radius:11px;margin-bottom:8px;display:flex;justify-content:space-between;font-weight:600;font-size:.84rem}
+.op.on{border-color:var(--cy);background:rgba(56,189,248,.18)}
+.holo{background:radial-gradient(circle,rgba(56,189,248,.16),rgba(5,9,20,.95) 75%);border:1px solid var(--bd);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:14px}
+.laser{position:absolute;left:0;width:100%;height:2px;background:var(--cy);box-shadow:0 0 14px var(--cy);animation:ls 3s ease-in-out infinite alternate;pointer-events:none;z-index:2}
+@keyframes ls{0%{top:6%}100%{top:94%}}
+.node{cursor:pointer;outline:none}.node:focus-visible circle:nth-child(3){stroke:#fff;stroke-width:3}
+.ring{transform-box:fill-box;transform-origin:center;animation:rp 1.8s infinite;pointer-events:none}
+@keyframes rp{0%{transform:scale(1);opacity:.85}100%{transform:scale(2.2);opacity:0}}
+.cl{stroke-dasharray:5 4;animation:df 1.2s linear infinite;transition:opacity .3s}
+@keyframes df{to{stroke-dashoffset:-18}}
+.cards{display:grid;gap:10px;margin-top:12px}
+.cam{display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
+@media(max-width:860px){.cam{grid-template-columns:1fr}}
+.vf{background:#03060C;border:2px solid rgba(56,189,248,.35);border-radius:16px;height:300px;position:relative;display:grid;place-items:center;overflow:hidden}
+#vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;opacity:.82}
+.tb{position:relative;z-index:2;background:rgba(5,9,20,.72);border:2px dashed var(--am);padding:14px 22px;border-radius:12px;text-align:center;transition:transform .25s}
+.modes{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.modes button{flex:1;background:rgba(10,16,30,.9);border:1px solid var(--bs);color:var(--mu);padding:9px;border-radius:10px;font-weight:700;font-size:.78rem}
+.modes button.on{border-color:var(--cy);color:#fff;background:rgba(56,189,248,.16)}
+.mh{display:flex;align-items:center;gap:18px;margin-bottom:14px;flex-wrap:wrap}
+.rw{position:relative;width:76px;height:76px}
+.rt{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--hf);font-weight:700}
+.warn{background:rgba(239,68,68,.16);border:1px solid var(--rd);border-left:5px solid var(--rd);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.win{display:none;background:rgba(16,185,129,.18);border:1px solid var(--gr);border-radius:14px;padding:16px 20px;margin-bottom:14px}
+.task{width:100%;text-align:left;color:inherit;background:var(--card);border:1px solid var(--bs);border-radius:13px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.task.done{background:rgba(16,185,129,.14);border-color:rgba(16,185,129,.5)}
+.chk{width:24px;height:24px;border-radius:7px;border:2px solid var(--cy);display:inline-grid;place-items:center;font-weight:800;margin-right:12px;vertical-align:middle}
+.task.done .chk{background:var(--gr);border-color:var(--gr);color:#050914}
+.nut{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px}
+.nc{background:rgba(5,9,20,.65);border:1px solid var(--bs);border-top:3px solid var(--cy);border-radius:11px;padding:12px;font-size:.77rem;color:var(--mu)}
+.nc h4{font-size:.74rem;text-transform:uppercase;margin-bottom:4px}
+.nc b{display:block;font-family:var(--hf);font-size:1.1rem;color:#fff;margin-bottom:4px}
+.logs{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto}
+.le{background:rgba(5,9,20,.72);border:1px solid var(--bs);border-left:3px solid var(--cy);padding:10px 14px;border-radius:8px;font-size:.82rem;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ov{position:fixed;inset:0;background:rgba(3,6,12,.86);backdrop-filter:blur(8px);display:none;place-items:center;padding:16px;z-index:150;overflow:auto}
+.ov.open{display:grid}
+.sm{background:#170B0F;border:2px solid var(--rd);border-radius:20px;max-width:620px;width:100%;padding:22px;box-shadow:0 0 50px rgba(239,68,68,.45)}
+.st{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
+@media(max-width:550px){.st{grid-template-columns:1fr 1fr}}
+.st button{background:rgba(255,255,255,.06);border:1px solid rgba(239,68,68,.4);color:#fff;padding:8px 6px;border-radius:8px;font-size:.74rem;font-weight:700}
+.st button.on{background:var(--rd);border-color:#fff}
+.met{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.45);padding:10px 14px;border-radius:12px;margin:12px 0;flex-wrap:wrap;font-size:.8rem}
+.beat{width:26px;height:26px;border-radius:50%;background:var(--rd);animation:cb .545s infinite}
+@keyframes cb{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.42);opacity:.5}}
+.ss{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+@media(max-width:550px){.ss{grid-template-columns:1fr}}
+.step{text-align:left;color:inherit;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:11px;border-radius:10px;font-size:.81rem}
+.step.on{background:rgba(16,185,129,.18);border-color:var(--gr)}
+.step i{display:inline-block;background:var(--rd);width:20px;height:20px;border-radius:50%;text-align:center;font-style:normal;font-weight:800;font-size:.74rem;margin-bottom:4px}
+.step.on i{background:var(--gr);color:#050914}
+#conf{position:fixed;inset:0;pointer-events:none;z-index:350}
+.sub{font-size:.82rem;color:var(--mu);margin-bottom:12px}
+</style>
+</head>
+<body>
+<canvas id="conf"></canvas>
+<div id="toasts" aria-live="polite"></div>
+<div id="wbCard" class="box" role="dialog" aria-label="Wellbeing check-in" style="display:none;position:fixed;left:20px;bottom:20px;z-index:300;max-width:360px;border-color:var(--cy)">
+  <strong style="font-family:var(--hf)">💬 Quick check-in</strong>
+  <p id="wbTxt" class="sub" style="margin:8px 0"></p>
+  <div id="wbBtns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+</div>
+<header>
+  <div class="logo"><div class="badge"><img alt="ASTRAH Care logo" src="data:image/jpeg;base64,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"></div><div>ASTRAH <span style="color:var(--cy)">Care</span><div style="font-size:.67rem;color:var(--mu);font-family:var(--mf);letter-spacing:.5px">By NEXT-US</div></div></div>
+  <div class="demo" role="note">SIMULATION / DEMO ONLY — not medical advice, not a medical device, and not affiliated with or endorsed by NASA. In a real emergency, follow your official procedures.</div>
+  <div class="tools">
+    <button class="sos" onclick="toggleSOS(true)">🚨 0G EMERGENCY</button>
+  </div>
+</header>
+
+<div class="wrap">
+<aside class="side" aria-label="Crew and controls">
+  <div class="sbox"><h4>👥 Crew <small>sorted by health priority</small></h4><div id="crewList"></div></div>
+  <div class="sbox"><h4>⌚ Smartwatch <small>active crew member</small></h4>
+    <button class="b1" id="bleBtn" onclick="connectWatch()">⌚ Connect Smartwatch (BLE)</button>
+    <button class="b2" id="simBtn" onclick="toggleSim()">🔄 Simulate Watch</button></div>
+  <div class="sbox"><h4>🌍 Environment</h4><select id="envSel" onchange="setEnv()" aria-label="Environment">
+      <option value="transit">🚀 Mars Transit (0G)</option>
+      <option value="station">🛰️ Orbital Station (Micro-G)</option>
+      <option value="moon">🌑 Artemis Lunar Base (0.16G)</option>
+      <option value="eva">👨‍🚀 EVA Suit (Hypoxia Watch)</option>
+    </select></div>
+</aside>
+<div class="main">
+<nav id="nav">
+  <button class="on" onclick="goTab('dash',this)">📊 Vital Signs</button>
+  <button onclick="goTab('body',this)">🧬 Body Scanner</button>
+  <button onclick="goTab('cam',this)">📷 Camera / Ultrasound</button>
+  <button onclick="goTab('tasks',this)">🎯 Countermeasures</button>
+  <button onclick="goTab('logs',this)">📡 Log <span class="cnt" id="logCount">0</span></button>
+</nav>
+
+<section id="view-dash" class="view on">
+  <div class="vitals">
+    <div class="vc" id="c-hr"><div class="vt"><span>❤️ HEART RATE</span><span id="hrSrc">MANUAL</span></div><div class="vn" id="n-hr"></div><span class="tag" id="t-hr"></span></div>
+    <div class="vc" id="c-bp"><div class="vt"><span>🩺 BLOOD PRESSURE</span><span id="bpSrc">mmHg</span></div><div class="vn" id="n-bp"></div><span class="tag" id="t-bp"></span></div>
+    <div class="vc" id="c-ox"><div class="vt"><span>🫁 OXYGEN SpO₂</span><span id="oxSrc">O2</span></div><div class="vn" id="n-ox"></div><span class="tag" id="t-ox"></span></div>
+    <div class="vc" id="c-gl"><div class="vt"><span>🩸 GLUCOSE</span><span>mg/dL</span></div><div class="vn" id="n-gl"></div><span class="tag" id="t-gl"></span></div>
+    <div class="vc" id="c-sl"><div class="vt"><span>🌙 SLEEP</span><span>HRS</span></div><div class="vn" id="n-sl"></div><span class="tag" id="t-sl"></span></div>
+  </div>
+  <div class="grid2">
+    <div class="box">
+      <div class="bh"><span>CARDIAC TELEMETRY &amp; ENVIRONMENT RISKS</span><span style="font-size:.75rem;color:var(--cy)" id="crewBadge">PROFILE: CMDR. LEO</span></div>
+      <div class="ble"><span id="bleLabel">⌚ Smartwatch: ready to pair (BLE Heart Rate service)</span><span>Auto-log in: <strong id="miniTimer">02:00</strong></span></div>
+      <canvas id="ecg"></canvas>
+      <div class="env" id="envTip"></div>
+      <div class="hz" id="hz"></div>
+      <p class="sub" style="margin:6px 0 0;font-size:.7rem">Hazard bars are qualitative demo levels, not measurements (the radiation bar switches to % of the 250 mSv limit during a storm).</p>
+      <div style="margin-top:12px;border-top:1px solid var(--bs);padding-top:10px">
+        <div class="bh" style="margin-bottom:8px"><span style="font-size:.85rem">☀️ SOLAR STORM (SPE) SIMULATOR</span><span class="tag green" id="spTag">Quiet Sun</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <select id="spSev" onchange="speUI()" aria-label="Storm event size"><option value="0">~100 mSv · lunar-surface reference</option><option value="1" selected>up to ~150 mSv · Orion, free space</option><option value="2">250 mSv · event limit (design reference)</option><option value="3">300 mSv · hypothetical, above limit</option></select>
+          <button class="sos" id="spBtn" style="padding:8px 12px;animation:none;font-size:.76rem" onclick="toggleSPE()">☀️ Start Solar Storm</button>
+          <button class="b2" onclick="resetSPE()">Reset</button>
+        </div>
+        <div class="hz">
+          <div class="hzi"><div class="hzt"><span>Storm dose (limit 250 mSv)</span><span id="spDose"></span></div><div class="trk"><div class="fill" id="spBar"></div></div></div>
+          <div class="hzi"><div class="hzt"><span>Career (limit 600, this session)</span><span id="spCar"></span></div><div class="trk"><div class="fill" id="spCarBar"></div></div></div>
+        </div>
+        <div class="ble" style="margin:8px 0 0"><span id="spRate"></span><span id="spTime"></span></div>
+        <div class="ms" style="margin-top:8px" id="spMsg"></div>
+      </div>
+    </div>
+    <div class="box">
+      <div class="bh"><span>REAL-TIME BIOMETRIC SELF-ASSESSMENT</span></div>
+      <p class="sub">Readings are assessed as they change and written to the log every <strong>2 minutes</strong> automatically.</p>
+      <div class="qi">
+        <div><label for="in-hr">Pulse (BPM)</label><input type="number" id="in-hr" min="20" max="250" oninput="syncVitals()"></div>
+        <div><label for="in-ox">Oxygen SpO₂ (%)</label><input type="number" id="in-ox" min="50" max="100" oninput="syncVitals()"></div>
+        <div><label for="in-sys">Systolic pressure</label><input type="number" id="in-sys" min="50" max="260" oninput="syncVitals()"></div>
+        <div><label for="in-dia">Diastolic pressure</label><input type="number" id="in-dia" min="30" max="160" oninput="syncVitals()"></div>
+        <div><label for="in-gl">Glucose (mg/dL)</label><input type="number" id="in-gl" min="20" max="600" oninput="syncVitals()"></div>
+        <div><label for="in-sl">Sleep hours</label><input type="number" id="in-sl" step="0.1" min="0" max="24" oninput="syncVitals()"></div>
+      </div>
+      <div class="ms" style="margin-top:12px" id="diag"></div>
+    </div>
+  </div>
+</section>
+
+<section id="view-body" class="view">
+  <div class="anat">
+    <div class="box">
+      <div class="bh"><span>SYSTEMS</span></div>
+      <button class="op on" id="p-brain" onclick="pickOrgan('brain')"><span>🧠 Brain / Vision (SANS)</span><span id="dot-brain">●</span></button>
+      <button class="op" id="p-lungs" onclick="pickOrgan('lungs')"><span>🫁 Lungs / EVA</span><span id="dot-lungs">●</span></button>
+      <button class="op" id="p-heart" onclick="pickOrgan('heart')"><span>🫀 Heart / Circulation</span><span id="dot-heart">●</span></button>
+      <button class="op" id="p-kidney" onclick="pickOrgan('kidney')"><span>🧬 Kidney / Immunity</span><span id="dot-kidney">●</span></button>
+      <button class="op" id="p-bones" onclick="pickOrgan('bones')"><span>🦴 Bones / Muscles</span><span id="dot-bones">●</span></button>
+    </div>
+    <div class="holo">
+      <div class="laser"></div>
+      <svg viewBox="0 0 220 420" width="215" height="405" role="img" aria-label="Interactive body diagram">
+        <g fill="rgba(56,189,248,.08)" stroke="#38BDF8" stroke-width="1.6" pointer-events="none">
+          <circle cx="110" cy="44" r="25"/><path d="M98 70L122 70L132 88L162 104L174 200L156 202L145 128L141 232L79 232L75 128L64 202L46 200L58 104L88 88Z"/><path d="M81 232L105 232L102 400L84 400Z"/><path d="M115 232L139 232L136 400L118 400Z"/>
+        </g>
+        <g pointer-events="none">
+          <ellipse cx="110" cy="41" rx="16" ry="12" fill="rgba(245,158,11,.4)" stroke="#F59E0B"/>
+          <ellipse cx="94" cy="132" rx="13" ry="23" fill="rgba(16,185,129,.3)" stroke="#10B981"/><ellipse cx="126" cy="132" rx="13" ry="23" fill="rgba(16,185,129,.3)" stroke="#10B981"/>
+          <path d="M110 123C104 115 96 123 110 140C124 123 116 115 110 123Z" fill="#EF4444"/>
+          <rect x="88" y="172" width="44" height="40" rx="10" fill="rgba(245,158,11,.3)" stroke="#F59E0B"/>
+          <line x1="93" y1="250" x2="93" y2="340" stroke="#EF4444" stroke-width="5" stroke-linecap="round"/><line x1="127" y1="250" x2="127" y2="340" stroke="#EF4444" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <g pointer-events="none">
+          <line id="l-bh" class="cl" x1="110" y1="41" x2="118" y2="138" stroke="#F59E0B" stroke-width="2.2"/>
+          <line id="l-bk" class="cl" x1="110" y1="41" x2="110" y2="192" stroke="#F59E0B" stroke-width="2"/>
+          <line id="l-lh" class="cl" x1="92" y1="128" x2="118" y2="138" stroke="#EF4444" stroke-width="2.4"/>
+          <line id="l-lb" class="cl" x1="92" y1="128" x2="110" y2="41" stroke="#EF4444" stroke-width="2"/>
+          <line id="l-ok" class="cl" x1="93" y1="295" x2="110" y2="192" stroke="#EF4444" stroke-width="2.2"/>
+          <line id="l-kh" class="cl" x1="110" y1="192" x2="118" y2="138" stroke="#F59E0B" stroke-width="2"/>
+        </g>
+        <circle id="reticle" cx="110" cy="41" r="19" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="5 3" pointer-events="none"/>
+        <g class="node" tabindex="0" role="button" aria-label="Brain" onclick="pickOrgan('brain')" onkeydown="nk(event,'brain')"><circle cx="110" cy="41" r="22" fill="transparent"/><circle class="ring" cx="110" cy="41" r="11" fill="none" stroke="#F59E0B" stroke-width="2"/><circle cx="110" cy="41" r="7" fill="#F59E0B"/></g>
+        <g class="node" tabindex="0" role="button" aria-label="Lungs" onclick="pickOrgan('lungs')" onkeydown="nk(event,'lungs')"><circle cx="92" cy="128" r="18" fill="transparent"/><circle class="ring" cx="92" cy="128" r="10" fill="none" stroke="#10B981" stroke-width="2"/><circle cx="92" cy="128" r="6" fill="#10B981"/></g>
+        <g class="node" tabindex="0" role="button" aria-label="Heart" onclick="pickOrgan('heart')" onkeydown="nk(event,'heart')"><circle cx="118" cy="138" r="18" fill="transparent"/><circle class="ring" cx="118" cy="138" r="10" fill="none" stroke="#10B981" stroke-width="2"/><circle cx="118" cy="138" r="6" fill="#10B981"/></g>
+        <g class="node" tabindex="0" role="button" aria-label="Kidney" onclick="pickOrgan('kidney')" onkeydown="nk(event,'kidney')"><circle cx="110" cy="192" r="22" fill="transparent"/><circle class="ring" cx="110" cy="192" r="11" fill="none" stroke="#F59E0B" stroke-width="2"/><circle cx="110" cy="192" r="7" fill="#F59E0B"/></g>
+        <g class="node" tabindex="0" role="button" aria-label="Bones" onclick="pickOrgan('bones')" onkeydown="nk(event,'bones')"><circle cx="93" cy="295" r="24" fill="transparent"/><circle class="ring" cx="93" cy="295" r="11" fill="none" stroke="#EF4444" stroke-width="2"/><circle cx="93" cy="295" r="7" fill="#EF4444"/></g>
+      </svg>
+      <span style="font-size:.73rem;color:var(--cy)">👆 Click any point on the body</span>
+    </div>
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3 id="o-title" style="font-family:var(--hf)"></h3><span class="tag" id="o-tag"></span></div>
+      <div class="cards">
+        <div class="ms" id="o-casc-box"><strong style="color:#FCA5A5">🔗 Active interconnections from vital signs</strong><span id="o-casc"></span></div>
+        <div class="ms"><strong>1. Why does it happen in space?</strong><span id="o-why"></span></div>
+        <div class="ms" style="border-left-color:var(--gr)"><strong style="color:var(--gr)">2. How to measure it without a doctor?</strong><span id="o-how"></span></div>
+        <div class="ms" style="border-left-color:var(--am)"><strong style="color:var(--am)">3. Countermeasure (illustrative)</strong><span id="o-act"></span></div>
+      </div>
+      <div id="muBox" style="display:none;margin-top:10px"><div class="ms" style="border-left-color:var(--rd)"><strong style="color:#FCA5A5">💪 Muscle &amp; bone degradation (model anchored to published figures)</strong>
+        <div class="qi" style="margin:6px 0"><div><label for="muDay">Mission day: <span id="muDayV"></span></label><input type="range" id="muDay" min="0" max="180" value="60" oninput="muDraw()"></div><div><label for="muAdh">Exercise adherence: <span id="muAdhV"></span></label><input type="range" id="muAdh" min="0" max="100" value="85" oninput="muDraw()"></div></div>
+        <canvas id="muCv" style="width:100%;height:150px;background:rgba(5,9,20,.85);border:1px solid var(--bd);border-radius:12px;display:block"></canvas>
+        <div style="font-size:.74rem;margin-top:6px"><span style="color:#38BDF8">━ muscle</span> <span style="color:#EF4444">╌ muscle, no exercise</span> <span style="color:#F59E0B">━ bone</span> (60–100%) • Anchors: NASA ≈20% muscle loss in 5–11 days without countermeasures; ≈13% calf-volume loss after long ISS flights with exercise; 1–1.5% bone density per month.<br>Muscle <b id="muM"></b> · no exercise <b id="muU"></b> · bone <b id="muB"></b> <span class="tag amber" id="muTag"></span> <button class="b2" style="padding:3px 8px;font-size:.7rem" onclick="muAuto()">Use exercise status</button></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section id="view-cam" class="view">
+  <div class="cam">
+    <div class="box">
+      <div class="bh"><span>OPTICAL &amp; ULTRASOUND SCANNER</span><button class="b1" id="camBtn" style="padding:5px 10px;font-size:.74rem" onclick="toggleCam()">🎥 Use Real Camera</button></div>
+      <div class="modes" id="modes">
+        <button class="on" onclick="setScan('retina',this)">👁️ Eye (RGB camera)</button>
+        <button onclick="setScan('ultra',this)">📡 Renal Ultrasound</button>
+        <button onclick="setScan('skin',this)">🔬 Saliva / Skin</button>
+      </div>
+      <div class="vf"><video id="vid" autoplay playsinline muted></video><div class="laser"></div><div class="tb" id="scanVis"></div></div>
+    </div>
+    <div class="box" style="display:flex;flex-direction:column;justify-content:space-between">
+      <div>
+        <div class="bh"><span>SIMULATED ASSISTED ANALYSIS</span></div>
+        <p class="sub">Ultrasound and saliva modes show fixed sample text. <strong>Eye (RGB camera)</strong> analyzes a real frame from your camera (sharpness, lighting and eye-surface redness against your own baseline). A normal camera cannot image the retina or optic nerve; SANS is assessed with OCT and fundus imaging.</p>
+        <div class="ms" id="scanRes"></div>
+        <div id="scanTs" style="font-size:.76rem;color:var(--gr);margin-top:10px;font-weight:700"></div>
+      </div>
+      <button class="ba" id="capBtn" onclick="capture()">📸 SCAN EYE &amp; SAVE TO LOG</button>
+      <button class="b2" style="margin-top:8px" onclick="eyeReset()">Reset eye baseline</button>
+    </div>
+  </div>
+</section>
+
+<section id="view-tasks" class="view">
+  <div class="box mh">
+    <div class="rw"><svg width="76" height="76"><circle cx="38" cy="38" r="32" stroke="rgba(255,255,255,.1)" stroke-width="7" fill="none"/><circle id="ring" cx="38" cy="38" r="32" stroke="#10B981" stroke-width="7" fill="none" stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round" transform="rotate(-90 38 38)" style="transition:.4s"/></svg><div class="rt" id="ringPct">0%</div></div>
+    <div style="flex:1"><h3 style="font-family:var(--hf)">Daily Preventive Routine (Demo)</h3><p class="sub" style="margin:0">Complete the 4 daily countermeasures to earn the simulated <strong>Flight-Ready</strong> status for the active crew member.</p></div>
+    <button class="b2" onclick="resetTasks()">Reset</button>
+  </div>
+  <div class="warn" id="warn"><div><strong id="warnT" style="color:#FCA5A5"></strong><p id="warnTx" style="font-size:.83rem;margin-top:4px;color:#FECACA"></p></div><button class="sos" style="font-size:.76rem;padding:7px 12px" onclick="reportDuty()">🚨 Log Non-Compliance</button></div>
+  <div class="win" id="win"><strong style="color:#34D399">🎉 ROUTINE 100% COMPLETE!</strong><p style="font-size:.86rem;margin-top:4px">Exercise, hydration and wellbeing checks covered today. Logged in the demo: <strong>FLIGHT-READY (simulated)</strong>.</p></div>
+  <div id="tasks"></div>
+  <div class="box" style="margin-top:16px">
+    <div class="bh"><span>🥗 SPACE NUTRITION REFERENCE (NASA)</span><span class="tag green">NASA requirements</span></div>
+    <p class="sub">Figures come from NASA exploration nutrition requirements (JSC-67378), NASA-STD-3001 and the ISS requirements table. Individual needs vary; this is not a personal prescription.</p>
+    <div class="nut">
+      <div class="nc"><h4>🔥 Energy</h4><b>≈2,300–3,050 kcal/day</b>NASA-STD-3001 mission average 3,035 kcal; about 3,041 (men, avg 82.9 kg) and 2,344 (women, avg 65.1 kg) with an active factor. Add 200 kcal per EVA hour.</div>
+      <div class="nc" style="border-top-color:var(--gr)"><h4>🥩 Protein</h4><b>1.2–1.8 g/kg/day</b>Exploration requirement (JSC-67378). The older ISS table lists 12–15% of energy.</div>
+      <div class="nc" style="border-top-color:var(--am)"><h4>🥑 Fat</h4><b>30–35% of energy</b>ISS requirements table. Fish intake was associated with less bone loss in ISS crews.</div>
+      <div class="nc" style="border-top-color:#A855F7"><h4>💊 Vitamin D &amp; Sodium</h4><b>Vit. D 25 µg (1,000 IU)</b>Daily requirement; vitamin D status often drops in flight. Sodium is monitored because space diets tend to be high in it.</div>
+    </div>
+  </div>
+</section>
+
+<section id="view-logs" class="view">
+  <div class="box">
+    <div class="bh"><span>AUTONOMOUS LOG (SELF-ASSESSMENT EVERY 2 MINUTES)</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="tag green" id="timerBadge"></span><button class="b2" onclick="autoCycle(true)">⚡ Simulate 2-Min Cycle</button><button class="b2" onclick="wbAsk('hr')">💬 Preview check-in</button><button class="b1" onclick="exportReport()">⬇️ Download Report (.TXT)</button></div></div>
+    <p class="sub">Every <strong>2 minutes</strong> the system assesses all vital signs, organ interconnections and countermeasure compliance and writes an entry, with no manual input.</p>
+    <div class="logs" id="logList"></div>
+  </div>
+</section>
+</div>
+</div>
+
+<div class="ov" id="ov">
+  <div class="sm" role="dialog" aria-modal="true" aria-labelledby="sosT">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="sosT" style="font-family:var(--hf);color:#FCA5A5;font-size:1.15rem">🚨 0G EMERGENCY ASSISTANT (SIMULATION)</h2><button id="sosClose" aria-label="Close" onclick="toggleSOS(false)" style="background:none;border:0;color:#fff;font-size:1.3rem;padding:4px 8px">✕</button></div>
+    <p style="font-size:.72rem;color:#FECACA;margin-top:6px">Training simulation only. Not medical advice. Follow official procedures and contact a flight surgeon.</p>
+    <div class="st" id="sosTabs">
+      <button class="on" onclick="setSOS('chest',this)">🫀 Chest Pain</button>
+      <button onclick="setSOS('hypoxia',this)">🫁 EVA Hypoxia</button>
+      <button onclick="setSOS('rad',this)">☢️ Radiation</button>
+      <button onclick="setSOS('trauma',this)">🩹 Bleeding</button>
+    </div>
+    <div class="met"><div style="display:flex;align-items:center;gap:12px"><div class="beat"></div><div><strong>CPR METRONOME (110 BPM)</strong><div style="color:#FECACA">Visual pulse + audio guide.</div></div></div><button id="metBtn" class="b1" style="border-color:#FCA5A5;color:#fff" onclick="toggleMet()">🔊 Enable Sound</button></div>
+    <p style="font-size:.75rem;color:#FECACA;margin-bottom:8px">Tap each step as you complete it:</p>
+    <div class="ss" id="steps"></div>
+    <button class="sos" style="width:100%;padding:12px" onclick="transmitSOS()">📝 SAVE ALERT TO LOG (SIMULATED TRANSMISSION)</button>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function toast(m,c='#38BDF8'){const t=document.createElement('div');t.className='toast';t.style.borderLeftColor=c;t.textContent=m;$('toasts').appendChild(t);setTimeout(()=>t.remove(),3200)}
+
+/* ---------- Single source of truth for thresholds ---------- */
+const PRESETS={self:{name:'Cmdr. Leo',role:'Commander',hr:72,sys:118,dia:76,ox:98,gl:108,sl:5.8},mate:{name:'Eng. Maya',role:'Flight Engineer',hr:112,sys:136,dia:88,ox:93,gl:96,sl:7.4},doc:{name:'Dr. Aiko',role:'Flight Surgeon',hr:64,sys:112,dia:72,ox:99,gl:92,sl:7.2},pilot:{name:'Cpt. Omar',role:'Pilot',hr:88,sys:126,dia:82,ox:96,gl:118,sl:6.4}};
+const crewData={};Object.keys(PRESETS).forEach(k=>{const q=PRESETS[k];crewData[k]={hr:q.hr,sys:q.sys,dia:q.dia,ox:q.ox,gl:q.gl,sl:q.sl}});
+const RANK={green:0,amber:1,red:2};
+const worst=(...s)=>s.reduce((a,b)=>RANK[b]>RANK[a]?b:a,'green');
+const band=(v,g,a)=>v>=g[0]&&v<=g[1]?'green':v>=a[0]&&v<=a[1]?'amber':'red';
+function readVitals(){
+  const f=(id,d,lo,hi)=>{const e=$(id),n=parseFloat(e.value);return Number.isFinite(n)?clamp(n,lo,hi):d};
+  const p=PRESETS[crew];
+  return{hr:f('in-hr',p.hr,20,250),sys:f('in-sys',p.sys,50,260),dia:f('in-dia',p.dia,30,160),ox:f('in-ox',p.ox,50,100),gl:f('in-gl',p.gl,20,600),sl:f('in-sl',p.sl,0,24)};
+}
+function assess(v){
+  const s={hr:band(v.hr,[60,100],[50,120]),
+    bp:worst(band(v.sys,[90,119],[85,139]),band(v.dia,[60,79],[55,89])),
+    ox:v.ox>=95?'green':v.ox>=90?'amber':'red',
+    gl:band(v.gl,[70,99],[60,125]),
+    sl:v.sl>=7?'green':v.sl>=6?'amber':'red'};
+  s.any=worst(s.hr,s.bp,s.ox,s.gl,s.sl);return s;
+}
+const LABEL={hr:{green:'Normal (60-100)',amber:'Watch rhythm',red:'Cardiac alert'},bp:{green:'Normal (<120/80)',amber:'Elevated / high',red:'Pressure alert'},ox:{green:'Normal (≥95%)',amber:'O₂ caution',red:'Hypoxia risk'},gl:{green:'Normal (<100)',amber:'Mild caution',red:'Critical glucose'},sl:{green:'Well rested',amber:'Light sleep',red:'Deficit (<6h)'}};
+
+/* ---------- Log ---------- */
+const logs=[];
+function addLog(text,badge='Auto-saved',color='green',stamp=true){
+  const time=new Date().toLocaleTimeString();logs.unshift({time,text,badge,color});
+  const d=document.createElement('div');d.className='le';
+  const a=document.createElement('div'),b=document.createElement('strong');b.textContent='['+time+'] ';a.append(b,document.createTextNode(text));
+  const t=document.createElement('span');t.className='tag '+color;t.textContent=badge;d.append(a,t);$('logList').prepend(d);$('logCount').textContent=logs.length;
+}
+let secs=120;
+function autoCycle(manual){
+  const v=readVitals(),s=assess(v),issues=[];wbTrack(s);
+  if(s.hr!=='green')issues.push('HR '+v.hr);if(s.bp!=='green')issues.push('BP '+v.sys+'/'+v.dia);if(s.ox!=='green')issues.push('SpO₂ '+v.ox+'%');if(s.gl!=='green')issues.push('Glucose '+v.gl);if(s.sl!=='green')issues.push('Sleep '+v.sl+'h');
+  const dn=tasks[crew].filter(Boolean).length;if(dn<4)issues.push('Duties '+dn+'/4');
+  const crit=s.any==='red';
+  addLog('[AUTO-2MIN] '+PRESETS[crew].name+' • HR '+v.hr+' | BP '+v.sys+'/'+v.dia+' | SpO₂ '+v.ox+'% | Glc '+v.gl+' | Sleep '+v.sl+'h → '+(issues.length?'Deviations: '+issues.join(', '):'Optimal (all parameters nominal)'),crit?'Auto-Critical':issues.length?'Auto-Caution':'Auto-Optimal',crit?'red':issues.length?'amber':'green');
+  secs=120;toast(manual?'⚡ 2-minute self-assessment cycle run':'📡 Log self-assessed and saved (2-min cycle)',crit?'#EF4444':'#10B981');
+}
+setInterval(()=>{if(--secs<=0)autoCycle(false);const f=String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0');$('timerBadge').textContent='⏱️ Next self-assessment: '+f;$('miniTimer').textContent=f},1000);
+function exportReport(){
+  const c='ASTRA-CARE OS 3.0 - SPACE MEDICAL TELEMETRY REPORT (SIMULATION)\n=========================================================\n'+logs.slice().reverse().map(l=>'['+l.time+'] '+l.text+' ('+l.badge+')').join('\n');
+  const u=URL.createObjectURL(new Blob([c],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');
+  a.href=u;a.download='AstraCare_Telemetry_'+new Date().toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast('⬇️ Report downloaded (.TXT)','#10B981');
+}
+
+/* ---------- Vitals ---------- */
+let crew='self',bpm=72;
+function card(id,text,st){$('n-'+id).textContent=text;$('c-'+id).className='vc '+(st==='green'?'':st);const t=$('t-'+id);t.className='tag '+st;t.textContent=LABEL[id][st]}
+function syncVitals(){
+  const v=readVitals(),s=assess(v);bpm=v.hr;crewData[crew]=v;
+  card('hr',v.hr+' BPM','hr'&&s.hr);card('bp',v.sys+'/'+v.dia,s.bp);card('ox',v.ox+'%',s.ox);card('gl',String(v.gl),s.gl);card('sl',v.sl+'h',s.sl);
+  const d=$('diag'),n=PRESETS[crew].name;
+  if(s.any==='red'){d.style.borderLeftColor='var(--rd)';d.innerHTML='<strong style="color:#FCA5A5">🚨 Automatic alert</strong><span>Critical readings for '+n+'. Check the organ cascade in Body Scanner or open the 0G Emergency assistant.</span>'}
+  else if(s.any==='amber'){d.style.borderLeftColor='var(--am)';d.innerHTML='<strong style="color:#FBBF24">⚠️ Automatic caution</strong><span>Out-of-range readings for '+n+'. Linked systems are highlighted in Body Scanner; logged at the next 2-minute cycle.</span>'}
+  else{d.style.borderLeftColor='var(--gr)';d.innerHTML='<strong style="color:#34D399">✅ Nominal self-assessment</strong><span>All readings for '+n+' are inside general adult reference ranges (AHA resting HR and BP, SpO₂, fasting glucose).</span>'}
+  organLinks(v,s);renderCrew()
+}
+function setInputs(p){['hr','sys','dia','ox','gl','sl'].forEach(k=>$('in-'+k).value=p[k])}
+
+/* ---------- Crew ---------- */
+function crewIssues(v,s){const o=[];if(s.hr!=='green')o.push('HR '+v.hr);if(s.bp!=='green')o.push('BP '+v.sys+'/'+v.dia);if(s.ox!=='green')o.push('SpO₂ '+v.ox+'%');if(s.gl!=='green')o.push('Glc '+v.gl);if(s.sl!=='green')o.push('Sleep '+v.sl+'h');return o}
+function renderCrew(){
+  const box=$('crewList');if(!box)return;
+  const arr=Object.keys(PRESETS).map(k=>{const s=assess(crewData[k]);return{k,s,iss:crewIssues(crewData[k],s),score:RANK[s.any]*100+['hr','bp','ox','gl','sl'].filter(x=>s[x]!=='green').length*10+(s.ox==='red'?5:0)}})
+    .sort((a,b)=>b.score-a.score||PRESETS[a.k].name.localeCompare(PRESETS[b.k].name));
+  box.innerHTML='';
+  arr.forEach((c,i)=>{const p=PRESETS[c.k],b=document.createElement('button');
+    b.className='cm'+(c.k===crew?' on':'');b.setAttribute('aria-pressed',c.k===crew);
+    b.innerHTML='<span class="dot" style="background:'+COL[c.s.any]+'"></span><span class="cmt"><strong></strong><small></small></span><span class="tag '+c.s.any+'">'+(c.s.any==='red'?'Critical':c.s.any==='amber'?'Caution':'Stable')+'</span>';
+    b.querySelector('strong').textContent=(i+1)+'. '+p.name;b.querySelector('small').textContent=p.role+' • '+(c.iss.length?c.iss.join(' • '):'All nominal');
+    b.onclick=()=>switchCrew(c.k);box.appendChild(b)});
+}
+function switchCrew(w){
+  if(w===crew)return;
+  if(simTimer)toggleSim();
+  crewData[crew]=readVitals();
+  crew=w;wbStreak={hr:0,duty:0,slp:0};
+  $('crewBadge').textContent='PROFILE: '+PRESETS[w].name.toUpperCase();setInputs(crewData[w]);
+  ['hrSrc','oxSrc'].forEach(i=>$(i).textContent=i==='hrSrc'?'MANUAL':'O2');$('bpSrc').textContent='mmHg';
+  renderTasks();syncVitals();toast('Active profile: '+PRESETS[w].name,'#38BDF8');
+}
+
+/* ---------- Environment ---------- */
+const ENVS={
+  transit:['🚀','Mars Transit (0G):','Weightlessness shifts about 2 liters of fluid toward the head; NASA is studying thigh cuffs and lower body negative pressure as countermeasures.',[85,65,55,22]],
+  station:['🛰️','Orbital Station (Micro-G):','Continuous link to Earth. The crew exercises about 2.5 h/day, 6 days/week to limit bone and muscle loss.',[78,35,30,18]],
+  moon:['🌑','Artemis Lunar Base (0.16G):','Partial gravity (about 0.16 g). Spaceflight and partial-gravity environments both challenge muscle and bone.',[42,72,48,34]],
+  eva:['👨‍🚀','Spacewalk / EVA Suit:','Risk of hypoxia and decompression at low suit pressure. Watch SpO₂ and follow oxygen pre-breathe.',[60,88,40,76]]};
+const HZ=[['grav','🌌 Fluid Shift'],['rad','☢️ Space Radiation'],['iso','🧠 Isolation / Sleep'],['env','🧫 Closed Cabin / O₂']];
+$('hz').innerHTML=HZ.map(h=>'<div class="hzi"><div class="hzt"><span>'+h[1]+'</span><span id="hz-'+h[0]+'-t"></span></div><div class="trk"><div class="fill" id="hz-'+h[0]+'"></div></div></div>').join('');
+function setEnv(){
+  const d=ENVS[$('envSel').value];
+  $('envTip').innerHTML='<span style="font-size:1.6rem">'+d[0]+'</span><div><strong>'+d[1]+'</strong> '+d[2]+'</div>';
+  d[3].forEach((p,i)=>{const c=p>=75?'var(--rd)':p>=50?'var(--am)':'var(--gr)',k=HZ[i][0];$('hz-'+k).style.width=p+'%';$('hz-'+k).style.background=c;$('hz-'+k+'-t').textContent=p+'%';$('hz-'+k+'-t').style.color=c});
+}
+
+/* ---------- Body scanner ---------- */
+let organ='brain';
+const ORGANS={
+  brain:{t:'🧠 Brain & Vision (SANS)',x:110,y:41,why:'Weightlessness moves about 2 liters of fluid from the lower to the upper body. This headward fluid shift is a leading hypothesis for SANS (optic disc swelling, flattened eyeball); the exact cause is not fully understood.',how:'On the ISS, SANS is followed with optical coherence tomography (OCT) imaging, visual field and acuity tests.',act:'Veno-constrictive thigh cuffs (Braslets, used on Soyuz) and lower body negative pressure are still under study as SANS countermeasures.'},
+  lungs:{t:'🫁 Lungs & Oxygenation (EVA)',x:92,y:128,why:'Moving from the cabin to a lower-pressure suit can allow nitrogen bubbles to form (decompression) or oxygen to drop.',how:'Place the finger pulse oximeter for 10 s (goal ≥95% SpO₂) and check suit pressure.',act:'Follow the mandatory pure-oxygen pre-breathe protocol before each spacewalk.'},
+  heart:{t:'🫀 Heart & Circulation',x:118,y:138,why:'The headward fluid shift changes cardiovascular function; after return to gravity many astronauts show orthostatic intolerance (fainting on standing).',how:'Connect the BLE smartwatch or a chest ECG patch for 5 resting minutes.',act:'Aerobic exercise (cycle or treadmill), typically 30–40 min at 70–85% of max heart rate, plus steady hydration.'},
+  kidney:{t:'🧬 Kidney & Immune System',x:110,y:192,why:'Bone loss raises urinary calcium, and astronauts tend to drink less and make less urine, which raises kidney-stone risk.',how:'Stone-risk studies measure urine volume and chemistry (calcium, citrate, pH). The usual target is about 2 L of urine per day.',act:'Drink enough to keep urine output near 2 L/day. Potassium citrate has been tested on the ISS to prevent stones (only if prescribed).'},
+  bones:{t:'🦴 Bones & Muscles',x:93,y:295,why:'Without gravity loading, weight-bearing bones lose about 1–1.5% of bone mineral density per month, roughly 10 times the rate in postmenopausal osteoporosis.',how:'Bone turnover can be tracked with blood and urine markers (e.g., NTX) while exercise loads are logged.',act:'Resistive (ARED) and aerobic exercise about 6 days/week, adequate energy intake and vitamin D (NASA requirement: 25 µg / 1,000 IU per day).'}};
+const COL={green:'var(--gr)',amber:'var(--am)',red:'var(--rd)'},OL={green:'Optimal',amber:'Caution',red:'0G Alert'};
+function organLinks(v,s){
+  const hrI=s.hr!=='green',bpI=s.bp!=='green',oxI=s.ox!=='green',glI=s.gl!=='green',slI=s.sl!=='green';
+  const st={brain:slI||bpI||oxI?(v.sl<6||v.ox<90?'red':'amber'):'green',lungs:oxI?(v.ox<90?'red':'amber'):'green',heart:hrI||bpI||oxI?(v.hr>110||v.sys>139?'red':'amber'):'green',kidney:worst(glI||bpI?(v.gl>139?'red':'amber'):'green',speDose>=250?'red':speDose>=125?'amber':'green'),bones:'red'};
+  for(const k in st)$('dot-'+k).style.color=COL[st[k]];
+  const o=(id,on,hi,lo)=>$(id).setAttribute('opacity',on?hi:lo);
+  o('l-bh',slI||bpI,.9,.15);o('l-bk',slI||glI,.9,.15);o('l-lh',oxI||hrI,.95,.12);o('l-lb',oxI,.95,.12);o('l-ok',true,.85,.85);o('l-kh',glI||bpI,.9,.15);
+  const t=$('o-tag');t.className='tag '+st[organ];t.textContent=OL[st[organ]];
+  const c=[];
+  if(oxI)c.push('<strong>Lungs (SpO₂ '+v.ox+'%) → Heart &amp; Brain:</strong> low saturation forces the heart to speed up ('+v.hr+' BPM) and reduces brain oxygenation, worsening fatigue and headache.');
+  if(hrI||bpI)c.push('<strong>Heart/Pressure ('+v.sys+'/'+v.dia+' mmHg, '+v.hr+' BPM) → Brain (SANS) &amp; Kidney:</strong> abnormal pressure plus 0G fluid shift raises load on the optic nerve and renal filtration.');
+  if(slI||glI)c.push('<strong>Sleep ('+v.sl+'h) &amp; Glucose ('+v.gl+' mg/dL) → Immunity &amp; Vascular:</strong> sleep deficit raises cortisol, which can impair glucose regulation and weaken immune response.');
+  if(speDose>=125)c.push('<strong>Radiation (SPE '+speDose.toFixed(0)+' mSv) → Immunity &amp; Cardiovascular:</strong> ionizing protons break DNA strands and drop white blood cell counts, weakening immune response.');
+  c.push('<strong>Bones (0G) → Kidney:</strong> bone demineralization releases calcium into the blood, raising kidney-stone risk without hydration.');
+  const any=oxI||hrI||bpI||glI||slI||speDose>=125,b=$('o-casc-box');
+  b.style.borderLeftColor=any?'var(--rd)':'var(--gr)';b.style.background=any?'rgba(239,68,68,.12)':'rgba(16,185,129,.12)';$('o-casc').innerHTML=c.join('<br>• ');
+}
+function nk(e,k){if(e.key==='Enter'||e.key===' '){e.preventDefault();pickOrgan(k)}}
+function pickOrgan(k){
+  organ=k;document.querySelectorAll('.op').forEach(p=>p.classList.remove('on'));$('p-'+k).classList.add('on');
+  const d=ORGANS[k];$('o-title').textContent=d.t;$('o-why').textContent=d.why;$('o-how').textContent=d.how;$('o-act').textContent=d.act;
+  $('reticle').setAttribute('cx',d.x);$('reticle').setAttribute('cy',d.y);$('muBox').style.display=k==='bones'?'block':'none';if(k==='bones')muDraw();syncVitals();
+}
+
+/* ---------- Tabs ---------- */
+let tab='dash';
+function goTab(id,btn){
+  if(tab==='cam'&&id!=='cam')stopCam();
+  tab=id;document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('on'));
+  $('view-'+id).classList.add('on');btn.classList.add('on');if(id==='dash')resizeECG();
+}
+
+/* ---------- ECG (paused when hidden) ---------- */
+const cv=$('ecg'),cx=cv.getContext('2d');let ex=0;
+function resizeECG(){cv.width=cv.offsetWidth||500;cv.height=cv.offsetHeight||115}
+addEventListener('resize',resizeECG);
+function drawECG(){
+  if(tab==='dash'){
+    cx.fillStyle='rgba(5,9,20,.1)';cx.fillRect(0,0,cv.width,cv.height);
+    const m=cv.height/2,c=ex%140;let y=m;
+    if(c>55&&c<62)y=m-12;else if(c>=62&&c<66)y=m+14;else if(c>=66&&c<72)y=m-44;else if(c>=72&&c<78)y=m+22;else if(c>=90&&c<105)y=m-13;
+    cx.fillStyle=bpm>100||bpm<50?'#EF4444':'#38BDF8';cx.beginPath();cx.arc(ex%cv.width,y,2.3,0,7);cx.fill();ex+=(bpm/60)*2.6;
+  }
+  requestAnimationFrame(drawECG);
+}
+
+/* ---------- Smartwatch ---------- */
+let bleDev=null,simTimer=null;
+function live(hr,sys,dia,ox,src){
+  if(hr!=null){$('in-hr').value=hr;$('hrSrc').textContent=src}
+  if(sys!=null){$('in-sys').value=sys;$('in-dia').value=dia;$('bpSrc').textContent=src}
+  if(ox!=null){$('in-ox').value=ox;$('oxSrc').textContent=src}
+  const v=readVitals();$('bleLabel').textContent='⌚ Live telemetry: '+v.hr+' BPM • '+v.sys+'/'+v.dia+' mmHg • SpO₂ '+v.ox+'%';syncVitals();
+}
+async function connectWatchLegacy(){
+  if(!navigator.bluetooth){toast('⚠️ Web Bluetooth needs Chrome/Edge over HTTPS. Use "Simulate Watch" instead.','#F59E0B');return}
+  try{
+    toast('🔍 Searching for a heart-rate smartwatch...');
+    bleDev=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});
+    bleDev.addEventListener('gattserverdisconnected',()=>{$('bleBtn').classList.remove('on');$('bleBtn').textContent='⌚ Connect Smartwatch (BLE)';$('hrSrc').textContent='MANUAL';$('bleLabel').textContent='⌚ Smartwatch: disconnected';toast('🔌 Smartwatch disconnected','#F59E0B')});
+    const srv=await bleDev.gatt.connect(),ch=await(await srv.getPrimaryService('heart_rate')).getCharacteristic('heart_rate_measurement');
+    await ch.startNotifications();
+    ch.addEventListener('characteristicvaluechanged',e=>{const d=e.target.value;live(d.getUint8(0)&1?d.getUint16(1,true):d.getUint8(1),null,null,null,'BLE LIVE')});
+    if(simTimer)toggleSim();
+    $('bleBtn').classList.add('on');$('bleBtn').textContent='⌚ '+(bleDev.name||'BLE Watch')+' (Active)';toast('✅ Connected to '+(bleDev.name||'smartwatch'),'#10B981');
+  }catch(e){
+    const m=e&&e.name==='NotFoundError'?'ℹ️ No device selected.':e&&e.name==='SecurityError'?'⚠️ Bluetooth blocked by browser permissions.':'⚠️ Could not connect: '+(e&&e.message?e.message:'unknown error');toast(m,'#F59E0B');
+  }
+}
+/* ---- Improved BLE: HR (+RR/HRV), BP, SpO2, battery, auto-reconnect ---- */
+let bleBat=null,bleManual=false,bleRetry=0,rrBuf=[];
+const sfloat=r=>{let m=r&0xFFF,e=r>>12;if(m>=0x800)m-=0x1000;if(e>=8)e-=16;return m*Math.pow(10,e)};
+function hrv(){if(rrBuf.length<5)return null;let s=0;for(let i=1;i<rrBuf.length;i++)s+=Math.pow(rrBuf[i]-rrBuf[i-1],2);return Math.round(Math.sqrt(s/(rrBuf.length-1)))}
+function bleTail(){const h=hrv();$('bleLabel').textContent+=(h?' • HRV '+h+' ms':'')+(bleBat!=null?' • 🔋 '+bleBat+'%':'')}
+function onHR(e){const d=e.target.value,f=d.getUint8(0);let o=1,hr;
+  if(f&1){hr=d.getUint16(o,true);o+=2}else{hr=d.getUint8(o);o++}
+  if(f&8)o+=2;
+  if(f&16){for(;o+1<d.byteLength;o+=2)rrBuf.push(d.getUint16(o,true)/1024*1000);rrBuf=rrBuf.slice(-30)}
+  if((f&4)&&!(f&2)){$('bleLabel').textContent='⌚ Sensor not touching skin — tighten the watch';return}
+  live(hr,null,null,null,'BLE LIVE');bleTail()}
+function onBP(e){const d=e.target.value,k=d.getUint8(0)&1?7.50062:1;live(null,Math.round(sfloat(d.getUint16(1,true))*k),Math.round(sfloat(d.getUint16(3,true))*k),null,'BLE LIVE');bleTail()}
+function onOx(e){const d=e.target.value;live(null,null,null,Math.round(sfloat(d.getUint16(1,true))),'BLE LIVE');bleTail()}
+async function bleSub(svc,chr,fn){try{const c=await(await bleSrv.getPrimaryService(svc)).getCharacteristic(chr);await c.startNotifications();c.addEventListener('characteristicvaluechanged',fn);return true}catch(e){return false}}
+let bleSrv=null;
+async function bleLink(){
+  bleSrv=await bleDev.gatt.connect();const got=[];
+  if(await bleSub('heart_rate','heart_rate_measurement',onHR))got.push('HR');
+  if(await bleSub('blood_pressure','blood_pressure_measurement',onBP))got.push('BP');
+  if(await bleSub('pulse_oximeter','plx_continuous_measurement',onOx))got.push('SpO₂');
+  try{const c=await(await bleSrv.getPrimaryService('battery_service')).getCharacteristic('battery_level');bleBat=(await c.readValue()).getUint8(0)}catch(e){bleBat=null}
+  if(!got.length){bleManual=true;bleDev.gatt.disconnect();throw new Error('No supported health service found on this device')}
+  if(simTimer)toggleSim();bleRetry=0;
+  $('bleBtn').classList.add('on');$('bleBtn').textContent='⌚ '+(bleDev.name||'BLE Watch')+' ('+got.join('+')+') — click to disconnect';
+  $('bleLabel').textContent='⌚ Connected: '+(bleDev.name||'smartwatch')+' • streams: '+got.join(', ');bleTail();toast('✅ Connected to '+(bleDev.name||'smartwatch')+' ('+got.join(', ')+')','#10B981')}
+function bleReset(){$('bleBtn').classList.remove('on');$('bleBtn').textContent='⌚ Connect Smartwatch (BLE)';$('hrSrc').textContent='MANUAL';$('bpSrc').textContent='mmHg';$('oxSrc').textContent='O2';$('bleLabel').textContent='⌚ Smartwatch: disconnected'}
+async function onBleDrop(){
+  bleReset();
+  if(bleManual||bleRetry>=5){toast(bleManual?'🔌 Smartwatch disconnected':'🔌 Connection lost. Press Connect to pair again.','#F59E0B');return}
+  const w=Math.min(15000,1500*2**bleRetry++);toast('🔌 Connection lost. Reconnecting in '+Math.round(w/1000)+' s (attempt '+bleRetry+'/5)...','#F59E0B');
+  setTimeout(async()=>{if(bleManual)return;try{await bleLink()}catch(e){onBleDrop()}},w)}
+async function connectWatch(){
+  if(bleDev&&bleDev.gatt.connected){bleManual=true;bleDev.gatt.disconnect();return}
+  if(!navigator.bluetooth){toast(window.isSecureContext?'⚠️ This browser has no Web Bluetooth. Use Chrome/Edge on desktop or Android (iOS Safari is not supported).':'⚠️ Web Bluetooth needs HTTPS or localhost. Use "Simulate Watch" instead.','#F59E0B');return}
+  try{
+    toast('🔍 Pick your watch. It must broadcast heart rate (turn on heart-rate sharing/broadcast on the watch).');
+    bleDev=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']},{services:['blood_pressure']},{services:['pulse_oximeter']}],optionalServices:['heart_rate','blood_pressure','pulse_oximeter','battery_service','device_information']});
+    bleDev.removeEventListener('gattserverdisconnected',onBleDrop);bleDev.addEventListener('gattserverdisconnected',onBleDrop);
+    bleManual=false;bleRetry=0;rrBuf=[];await bleLink();
+  }catch(e){
+    const n=e&&e.name;toast(n==='NotFoundError'?'ℹ️ No device selected. Make sure the watch is broadcasting heart rate.':n==='SecurityError'?'⚠️ Bluetooth blocked by browser permissions.':n==='NetworkError'?'⚠️ Could not reach the watch. Move closer and retry.':'⚠️ '+(e&&e.message?e.message:'Bluetooth error'),'#F59E0B');
+  }}
+function toggleSim(){
+  const b=$('simBtn');
+  if(simTimer){clearInterval(simTimer);simTimer=null;b.classList.remove('on');b.textContent='🔄 Simulate Watch';$('hrSrc').textContent='MANUAL';$('bpSrc').textContent='mmHg';$('oxSrc').textContent='O2';$('bleLabel').textContent='⌚ Smartwatch: simulator stopped';return}
+  b.classList.add('on');b.textContent='🟢 Simulated Watch ON';toast('⌚ Simulating pulse, blood pressure and oxygen...','#10B981');
+  simTimer=setInterval(()=>{const v=readVitals(),r=(n)=>Math.floor(Math.random()*n)-Math.floor(n/2);
+    live(clamp(v.hr+r(5),56,132),clamp(v.sys+r(5),98,146),clamp(v.dia+r(3),62,94),clamp(v.ox+r(3),91,100),'SIM LIVE')},1200);
+}
+
+/* ---------- Camera / scans ---------- */
+let stream=null,scanKey='retina';
+function stopCam(){if(!stream)return;stream.getTracks().forEach(t=>t.stop());stream=null;$('vid').style.display='none';$('camBtn').classList.remove('on');$('camBtn').textContent='🎥 Use Real Camera'}
+async function toggleCam(){
+  if(stream){stopCam();toast('📷 Camera off');return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('⚠️ Camera unavailable here; using simulated mode.','#F59E0B');return}
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});$('vid').srcObject=stream;$('vid').style.display='block';$('camBtn').classList.add('on');$('camBtn').textContent='🟢 Camera On (Turn off)';toast('🎥 Camera connected to the viewer','#10B981')}
+  catch(e){toast('⚠️ Camera permission denied; continuing in simulated mode.','#F59E0B')}
+}
+const SCANS={
+  retina:['👁️','EYE SCAN (RGB CAMERA)','var(--cy)','Real image • Look at the lens in even light','Turn on the camera, look at the lens in even lighting and press scan. The app measures sharpness, brightness and eye-surface redness (RGB) and compares it with your own baseline. A normal camera cannot image the retina or optic nerve.'],
+  ultra:['📡','RENAL ULTRASOUND IN FOCUS','var(--gr)','Sample: clear flow • No micro-stones','Sample text: renal parenchyma without obstruction. Steady hydration helps prevent calcium crystallization.'],
+  skin:['🔬','SALIVA / SKIN TEST STRIP','var(--gr)','Sample: stable biomarkers • No inflammation','Sample text: cortisol within expected range. No inflammation markers detected.']};
+function setScan(m,btn){
+  scanKey=m;document.querySelectorAll('#modes button').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
+  const s=SCANS[m];$('scanVis').style.borderColor=s[2];
+  $('scanVis').innerHTML='<div style="font-size:2.3rem;margin-bottom:6px">'+s[0]+'</div><div style="font-family:var(--hf);font-weight:700;color:'+s[2]+'">'+s[1]+'</div><div style="font-size:.74rem;color:var(--mu)">'+s[3]+'</div>';
+  $('scanRes').innerHTML='<strong>'+(m==='retina'?'Eye scan (real image analysis)':'Scan Result (sample)')+'</strong><span>'+s[4]+'</span>';$('scanTs').textContent='';capLabel();
+}
+function capture(){if(scanKey==='retina'){scanEye();return}
+  const b=$('capBtn');b.textContent='⏳ PROCESSING IMAGE...';b.disabled=true;$('scanVis').style.transform='scale(1.06)';
+  setTimeout(()=>{$('scanVis').style.transform='scale(1)';b.textContent='📸 CAPTURE & SAVE TO LOG';b.disabled=false;
+    $('scanTs').textContent='✔ Capture saved to log at '+new Date().toLocaleTimeString();
+    addLog('Optical scan ('+scanKey.toUpperCase()+', sample result) saved for '+PRESETS[crew].name,'Image Saved','green');toast('📸 Sample captured and added to the log','#10B981')},500);
+}
+
+/* ---------- Countermeasures (per crew) ---------- */
+const TASKS=[['60 min Resistive Exercise (ARED)','Part of the ~2.5 h/day, 6 days/week exercise block used on the ISS'],['30–40 min Aerobic Exercise (CEVIS / treadmill)','Typically at 70–85% of max heart rate to protect heart and bone'],['Hydration for ~2 L/day urine output','Helps prevent kidney stones; potassium citrate only if prescribed'],['Daily Eye Check (camera scan)','Saving a valid eye scan completes this task automatically']];
+const tasks={self:[true,false,false,false],mate:[false,false,false,false],doc:[false,false,false,false],pilot:[false,false,false,false]};
+function renderTasks(){
+  $('tasks').innerHTML='';
+  TASKS.forEach((t,i)=>{const b=document.createElement('button');b.className='task'+(tasks[crew][i]?' done':'');b.setAttribute('aria-pressed',!!tasks[crew][i]);
+    b.innerHTML='<span><span class="chk">'+(tasks[crew][i]?'✓':'')+'</span><span style="display:inline-block;vertical-align:middle"><strong></strong><div style="font-size:.77rem;color:var(--mu)"></div></span></span><span class="tag green">+50 XP</span>';
+    b.querySelector('strong').textContent=t[0];b.querySelector('div').textContent=t[1];b.onclick=()=>toggleTask(i);$('tasks').appendChild(b)});
+  updateRing(false);
+}
+function toggleTask(i){const was=tasks[crew].every(Boolean);tasks[crew][i]=!tasks[crew][i];renderTasks();const now=tasks[crew].every(Boolean);
+  if(now&&!was){addLog('100% daily certification completed by '+PRESETS[crew].name+' (FLIGHT-READY, simulated)','Certified','green');toast('🎉 Routine 100% complete!','#10B981');confetti()}}
+function resetTasks(){tasks[crew]=[false,false,false,false];renderTasks();toast('🔄 Daily routine reset — safety warning active','#EF4444')}
+function reportDuty(){const d=tasks[crew].filter(Boolean).length;addLog('⚠️ SAFETY WARNING: '+PRESETS[crew].name+' has '+(4-d)+' daily countermeasure(s) incomplete ('+Math.round(d*25)+'%)','Safety Warning','red');toast('⚠️ Safety warning logged ('+(4-d)+' duties pending)','#EF4444')}
+function updateRing(){
+  const d=tasks[crew].filter(Boolean).length,p=d*25;$('ringPct').textContent=p+'%';$('ring').style.strokeDashoffset=201-2.01*p;
+  $('win').style.display=d===4?'block':'none';$('warn').style.display=d===4?'none':'flex';
+  $('warnT').textContent='⚠️ MISSION SAFETY WARNING: DUTIES INCOMPLETE ('+p+'%)';
+  $('warnTx').innerHTML='<strong>'+(4-d)+' mandatory countermeasure(s)</strong> still pending today for '+PRESETS[crew].name+'. Unmitigated risks: bone and muscle loss, kidney stones and cardiovascular deconditioning.';
+}
+
+/* ---------- Emergency (simulation) ---------- */
+let sosKey='chest';
+const SOS={
+  chest:['Chest Pain / Collapse',[['Secure the crewmate:','Strap them to the medical restraint so they do not float freely.'],['100% oxygen:','Apply a high-flow mask and check the carotid pulse for up to 10 s.'],['ECG pads / AED:','Attach pads as pictured; the defibrillator analyzes the rhythm on its own.'],['Ground telemetry:','Send a priority vitals packet to the Flight Surgeon.']]],
+  hypoxia:['Hypoxia / EVA Decompression',[['Repressurize:','Bring the crewmember into the airlock and raise cabin pressure immediately.'],['Pure oxygen:','Give 100% O₂ as directed by procedure.'],['Watch SpO₂:','Confirm on the oximeter that saturation rises above 95%.'],['Report EVA:','Send the suit pressure log to Mission Control.']]],
+  rad:['Solar Storm (SPE)',[['Shielded shelter:','Move all crew to the central module surrounded by water tanks.'],['Read dosimeters:','Scan each astronaut\'s personal dosimeter to measure exposure.'],['Hydration & symptoms:','Keep fluids up; use kit medication for nausea only as directed by the flight surgeon.'],['Await all-clear:','Stay sheltered until external sensors confirm the storm has subsided.']]],
+  trauma:['Trauma / Bleeding in 0G',[['0G containment:','Apply hemostatic gauze with direct pressure to avoid fluid dispersal.'],['Tourniquet:','If limb bleeding does not stop with pressure, apply a tourniquet above the wound per training.'],['Quick ultrasound:','Use the portable ultrasound to look for internal bleeding.'],['Vital checks:','Monitor blood pressure every 5 min and sync with Earth.']]]};
+function renderSteps(k){sosKey=k;$('steps').innerHTML='';SOS[k][1].forEach((s,i)=>{const b=document.createElement('button');b.className='step';b.setAttribute('aria-pressed','false');b.innerHTML='<i>'+(i+1)+'</i><br><strong></strong> <span></span>';b.querySelector('strong').textContent=s[0];b.querySelector('span').textContent=s[1];b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-pressed',b.classList.contains('on'))};$('steps').appendChild(b)})}
+function setSOS(k,btn){document.querySelectorAll('#sosTabs button').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderSteps(k)}
+let lastFocus=null;
+function toggleSOS(open){
+  $('ov').classList.toggle('open',open);
+  if(open){lastFocus=document.activeElement;setSOS(sosKey,document.querySelectorAll('#sosTabs button')[Object.keys(SOS).indexOf(sosKey)]);$('sosClose').focus()}
+  else{if(metTimer)toggleMet();if(lastFocus)lastFocus.focus()}
+}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&$('ov').classList.contains('open'))toggleSOS(false)});
+function transmitSOS(){addLog('🚨 CRITICAL ALERT ('+SOS[sosKey][0]+') saved for '+PRESETS[crew].name+' — simulated, nothing was transmitted','URGENT (SIM)','red');toggleSOS(false);toast('📝 Critical alert saved to log (simulation only)','#EF4444')}
+
+/* ---------- CPR metronome: Web Audio clock scheduling, 110 BPM ---------- */
+let actx=null,metTimer=null,nextT=0;
+function beep(t){const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.001,t+.08);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.08)}
+function toggleMet(){
+  const b=$('metBtn');
+  if(metTimer){clearInterval(metTimer);metTimer=null;b.textContent='🔊 Enable Sound';b.classList.remove('on');return}
+  actx=actx||new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();
+  nextT=actx.currentTime+.05;
+  metTimer=setInterval(()=>{while(nextT<actx.currentTime+.15){beep(nextT);nextT+=60/110}},25);
+  b.textContent='🔇 Mute (110 BPM)';b.classList.add('on');
+}
+
+/* ---------- Confetti ---------- */
+function confetti(){
+  const c=$('conf'),k=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const p=Array.from({length:75},()=>({x:Math.random()*c.width,y:-10,r:Math.random()*6+4,v:Math.random()*4+2.5,c:['#38BDF8','#10B981','#F59E0B','#A855F7'][Math.floor(Math.random()*4)]}));
+  let f=0;(function a(){k.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.y+=q.v;k.fillStyle=q.c;k.fillRect(q.x,q.y,q.r,q.r)});if(++f<110)requestAnimationFrame(a);else k.clearRect(0,0,c.width,c.height)})();
+}
+
+/* ---------- Solar storm (SPE) simulation ----------
+   Event sizes are anchored to NASA reference values (NASA-STD-3001: 250 mSv per SPE, 600 mSv career;
+   ~100 mSv lunar surface and <150 mSv Orion free-space reference events). Time pacing is demo only. */
+const EVT=[[100,'~100 mSv lunar-surface reference event'],[150,'up to ~150 mSv Orion free-space reference event'],[250,'250 mSv event (limit / design reference)'],[300,'300 mSv hypothetical event above the limit']];
+const GCR={transit:'≤1.3 (free-space design ceiling)',station:'0.2–0.5 (measured on ISS)',moon:'≤0.8–0.9 (surface design ceiling)',eva:'≤0.8–0.9 (surface design ceiling)'};
+let speOn=false,speT=null,speDose=0,speProg=0,speCar=0,speFlags={};
+const pc=p=>p>=100?'var(--rd)':p>=50?'var(--am)':'var(--gr)';
+function speUI(){
+  const env=$('envSel').value,p=speDose/250*100,cp=(speCar+speDose)/600*100;
+  $('spDose').textContent=speDose.toFixed(1)+' mSv';$('spBar').style.width=Math.min(100,p)+'%';$('spBar').style.background=pc(p);
+  $('spCar').textContent=(speCar+speDose).toFixed(1)+' mSv';$('spCarBar').style.width=Math.min(100,cp)+'%';$('spCarBar').style.background=pc(cp);
+  $('spRate').textContent='Background GCR: '+GCR[env]+' mSv/day';
+  $('spTime').textContent='Event progress: '+speProg+'% (demo pacing)';
+  const t=$('spTag'),m=$('spMsg'),st=p>=100?'red':p>=50||speOn?'amber':'green';
+  t.className='tag '+st;t.textContent=p>=100?'Limit reached':speOn?'Storm active':speDose>0?'Storm ended':'Quiet Sun';
+  let h;
+  if(p>=100){m.style.borderLeftColor='var(--rd)';h='<strong style="color:#FCA5A5">🚨 250 mSv per-event limit reached</strong><span>NASA sets this limit to minimize acute effects, so reaching or exceeding it raises the risk of nausea, vomiting and fatigue. Keep the crew sheltered and contact the flight surgeon.</span>'}
+  else if(p>=50){m.style.borderLeftColor='var(--am)';h='<strong style="color:#FBBF24">⚠️ Over 50% of the 250 mSv event limit</strong><span>Read dosimeters and keep the crew in the best-shielded area. Hydrogen-rich materials such as water and polyethylene are used for storm shelters.</span>'}
+  else{m.style.borderLeftColor='var(--gr)';h='<strong style="color:#34D399">✅ Below 50% of the event limit</strong><span>'+(speOn?'Monitor dosimeters while the event unfolds.':'Pick an event size and start a storm. Long-term exposure raises cancer risk and can affect the central nervous system, cognition and motor function.')+'</span>'}
+  m.innerHTML=h;
+  const hb=$('hz-rad'),ht=$('hz-rad-t');if(speDose>0){const q=Math.min(100,Math.round(p)),c=pc(q);hb.style.width=q+'%';hb.style.background=c;ht.textContent=q+'%';ht.style.color=c}
+}
+function speTick(){
+  const i=+$('spSev').value,n=PRESETS[crew].name;
+  speProg=Math.min(100,speProg+1);speDose=EVT[i][0]*speProg/100;
+  if(!speFlags.h&&speDose>=125){speFlags.h=1;addLog('☢️ SPE dose reached 125 mSv (50% of the 250 mSv event limit) — '+n,'Radiation Caution','amber');toast('☢️ 50% of the event dose limit reached','#F59E0B')}
+  if(!speFlags.l&&speDose>=250){speFlags.l=1;addLog('🚨 SPE dose reached the 250 mSv event limit — '+n,'Radiation Alert','red');toast('🚨 Event dose limit reached','#EF4444')}
+  if(speProg>=100)toggleSPE();else{speUI();syncVitals()}
+}
+function toggleSPE(){
+  const b=$('spBtn'),i=+$('spSev').value;
+  if(speOn){speOn=false;clearInterval(speT);b.textContent='☀️ Start Solar Storm';addLog('☀️ Solar storm ended. Event dose '+speDose.toFixed(1)+' mSv','SPE Ended','green')}
+  else{speCar+=speDose;speDose=0;speProg=0;speFlags={};speOn=true;b.textContent='⏹ End Solar Storm';speT=setInterval(speTick,1000);
+    addLog('☀️ Solar storm started: '+EVT[i][1],'SPE Started','amber');toast('☀️ Solar particle event started. Storm shelters are the main protection.','#F59E0B')}
+  speUI();syncVitals()}
+function resetSPE(){speOn=false;clearInterval(speT);speDose=0;speProg=0;speCar=0;speFlags={};$('spBtn').textContent='☀️ Start Solar Storm';speUI();syncVitals();toast('Dose counters reset')}
+
+/* ---------- Muscle & bone degradation model ---------- */
+function muAuto(){$('muAdh').value=15+40*(tasks[crew][0]?1:0)+40*(tasks[crew][1]?1:0);muDraw()}
+function muDraw(){
+  const d=+$('muDay').value,a=+$('muAdh').value/100;
+  const m0=x=>x<=8?100-2.5*x:80-(x-8)*10/172,                  /* no exercise: ~20% in 8 d (NASA JSC 5-11 d), ~30% by 180 d */
+        mx=x=>100-13*(1-Math.exp(-x/60))/(1-Math.exp(-3)),    /* full exercise: ~13% calf volume loss after long ISS flights */
+        mu=x=>m0(x)*(1-a)+mx(x)*a,
+        bo=x=>100-(1.5-.75*a)*x/30;                           /* 1.5%/month (reported) down to 0.75%/month with full exercise */
+  $('muDayV').textContent='Day '+d;$('muAdhV').textContent=Math.round(a*100)+'%';
+  const m=mu(d),loss=100-m;$('muM').textContent=m.toFixed(1)+'%';$('muU').textContent=m0(d).toFixed(1)+'%';$('muB').textContent=bo(d).toFixed(1)+'%';
+  const t=$('muTag');t.className='tag '+(loss>10?'red':loss>4?'amber':'green');t.textContent=loss>10?'Significant loss':loss>4?'Moderate loss':'Well preserved';
+  const c=$('muCv'),g=c.getContext('2d');c.width=c.offsetWidth||500;c.height=150;
+  const X=x=>20+x/180*(c.width-30),Y=v=>140-(Math.max(60,v)-60)/40*125;
+  g.font='10px sans-serif';[60,70,80,90,100].forEach(v=>{g.strokeStyle='rgba(255,255,255,.12)';g.beginPath();g.moveTo(20,Y(v));g.lineTo(c.width-10,Y(v));g.stroke();g.fillStyle='#94A3B8';g.fillText(v,0,Y(v)+3)});
+  const ln=(f,col,dash)=>{g.strokeStyle=col;g.setLineDash(dash);g.lineWidth=2;g.beginPath();for(let x=0;x<=180;x+=3){x?g.lineTo(X(x),Y(f(x))):g.moveTo(X(x),Y(f(x)))}g.stroke();g.setLineDash([])};
+  ln(m0,'#EF4444',[4,4]);ln(mu,'#38BDF8',[]);ln(bo,'#F59E0B',[]);
+  g.strokeStyle='#fff';g.beginPath();g.moveTo(X(d),10);g.lineTo(X(d),140);g.stroke()}
+
+/* ---------- Eye scan: real RGB frame analysis (image quality + eye-surface redness vs own baseline) ----------
+   Not a retina/SANS diagnosis. Thresholds are demo values. */
+let eyeBase={};
+try{eyeBase=JSON.parse(localStorage.getItem('astra_eye_base')||'{}')}catch(e){}
+function capLabel(){$('capBtn').textContent=scanKey==='retina'?'📸 SCAN EYE & SAVE TO LOG':'📸 CAPTURE & SAVE TO LOG'}
+function eyeReset(){delete eyeBase[PRESETS[crew].name];try{localStorage.setItem('astra_eye_base',JSON.stringify(eyeBase))}catch(e){}toast('Eye baseline reset for '+PRESETS[crew].name)}
+function scanEye(){
+  const v=$('vid');
+  if(!stream||v.readyState<2){toast('🎥 Turn on the camera first and look at the lens in even lighting.','#F59E0B');return}
+  const W=160,H=120,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d',{willReadFrequently:true});
+  g.drawImage(v,0,0,W,H);const d=g.getImageData(0,0,W,H).data,gr=new Float32Array(W*H);
+  const x0=Math.floor(W*.25),x1=Math.floor(W*.75),y0=Math.floor(H*.25),y1=Math.floor(H*.75);
+  let R=0,G=0,B=0,L=0,n=0;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=(y*W+x)*4,l=.299*d[i]+.587*d[i+1]+.114*d[i+2];gr[y*W+x]=l;
+    if(x>=x0&&x<x1&&y>=y0&&y<y1){R+=d[i];G+=d[i+1];B+=d[i+2];L+=l;n++}}
+  R/=n;G/=n;B/=n;L/=n;
+  let sm=0,sq=0,m=0;
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const k=y*W+x,q=4*gr[k]-gr[k-1]-gr[k+1]-gr[k-W]-gr[k+W];sm+=q;sq+=q*q;m++}
+  const sharp=sq/m-(sm/m)*(sm/m),red=R/(R+G+B),name=PRESETS[crew].name,res=$('scanRes'),ts=$('scanTs');
+  const bad=[];if(L<50)bad.push('too dark');if(L>210)bad.push('too bright');if(sharp<20)bad.push('out of focus or moving');
+  if(bad.length){
+    res.innerHTML='<strong>Eye scan (real image analysis)</strong><span>Image not usable: '+bad.join(', ')+'. Face the camera in even light, hold still and try again.</span>';
+    ts.style.color='var(--am)';ts.textContent='Scan not valid — please retry.';toast('⚠️ Eye scan not valid: '+bad.join(', '),'#F59E0B');return}
+  const b=eyeBase[name];let msg,color='green',badge='Eye Scan';
+  if(!b){eyeBase[name]={red:+red.toFixed(4)};try{localStorage.setItem('astra_eye_base',JSON.stringify(eyeBase))}catch(e){}
+    msg='Baseline saved for '+name+' (red share '+red.toFixed(3)+'). Future scans are compared with it.'}
+  else{const dl=(red-b.red)/b.red*100;
+    if(Math.abs(dl)>=8){color='amber';badge='Eye Change';msg='Eye-surface redness differs by '+(dl>0?'+':'')+dl.toFixed(1)+'% from your baseline. Lighting, irritation, dryness or fatigue can all change this; it is not a diagnosis. Repeat in similar light and report persistent changes or any vision change.'}
+    else msg='Eye-surface redness is within ±8% of your baseline ('+(dl>0?'+':'')+dl.toFixed(1)+'%).'}
+  res.innerHTML='<strong>Eye scan (real image analysis)</strong><span>Sharpness '+sharp.toFixed(0)+' • brightness '+L.toFixed(0)+'/255 • red share '+red.toFixed(3)+'. '+msg+' This cannot assess the retina or optic nerve.</span>';
+  ts.style.color=color==='green'?'var(--gr)':'var(--am)';ts.textContent='✔ Eye scan saved to log at '+new Date().toLocaleTimeString();
+  addLog('Eye scan (RGB camera) for '+name+': sharpness '+sharp.toFixed(0)+', brightness '+L.toFixed(0)+', red share '+red.toFixed(3)+(b?', change vs baseline '+(((red-b.red)/b.red*100)).toFixed(1)+'%':' (baseline set)'),badge,color);
+  toast('👁️ Eye scan saved','#10B981');
+  if(!tasks[crew][3])toggleTask(3);
+}
+
+/* ---------- Rare, optional wellbeing check-in ---------- */
+let wbStreak={hr:0,duty:0,slp:0},wbLast=0;
+const WB_COOLDOWN=3*60*60*1000; /* at most once every 3 hours */
+function wbTrack(s){
+  const inc=tasks[crew].some(x=>!x);
+  wbStreak.hr=s.hr!=='green'?wbStreak.hr+1:0;
+  wbStreak.duty=inc?wbStreak.duty+1:0;
+  wbStreak.slp=s.sl==='red'&&inc?wbStreak.slp+1:0;
+  if(wbLast&&Date.now()-wbLast<WB_COOLDOWN)return;
+  if($('ov').classList.contains('open')||speOn)return;
+  if(wbStreak.hr>=8)wbAsk('hr');else if(wbStreak.slp>=15)wbAsk('slp');else if(wbStreak.duty>=30)wbAsk('duty');
+}
+function wbAsk(r){
+  wbLast=Date.now();wbStreak={hr:0,duty:0,slp:0};
+  const why={hr:'your heart rate has stayed outside the usual range for a while',slp:'sleep has been short and daily routines are still pending',duty:'several daily countermeasures have stayed pending for a long time'}[r];
+  $('wbTxt').textContent='We noticed that '+why+'. How are you doing? This is optional and is not a diagnosis.';
+  const o=[['ok','I\'m fine'],['stress','A bit stressed'],['low','Feeling low'],['skip','Not now']];
+  $('wbBtns').innerHTML='';o.forEach(a=>{const b=document.createElement('button');b.className='b2';b.textContent=a[1];b.onclick=()=>wbAnswer(a[0]);$('wbBtns').appendChild(b)});
+  $('wbCard').style.display='block';addLog('💬 Optional wellbeing check-in offered to '+PRESETS[crew].name,'Check-in','amber');
+}
+function wbAnswer(k){
+  const m={ok:'Glad to hear it. Keep up the routine; this check-in will stay quiet for a few hours.',
+    stress:'Stress is common on long missions. Try a short break, slow breathing or a chat with a crewmate, and consider reaching out to the psychological support team.',
+    low:'Thank you for telling us. Please talk soon with a crewmate, the flight surgeon or psychological support; you do not have to handle this alone. If you ever feel unsafe or think about harming yourself, contact emergency services or a crisis line right away.',
+    skip:''};
+  if(!m[k]){$('wbCard').style.display='none';return}
+  $('wbTxt').textContent=m[k];$('wbBtns').innerHTML='';const b=document.createElement('button');b.className='b2';b.textContent='Close';b.onclick=()=>{$('wbCard').style.display='none'};$('wbBtns').appendChild(b);
+  if(k==='ok')setTimeout(()=>{$('wbCard').style.display='none'},6000);
+}
+
+/* ---------- Init ---------- */
+addLog('[INITIAL SELF-ASSESSMENT] Cmdr. Leo • HR 72 BPM | BP 118/76 mmHg | SpO₂ 98% | Glucose 108 | Sleep 5.8h → Mild caution (Sleep/Glucose)','Auto-saved','amber');
+addLog('[COUNTERMEASURE] 60 min ARED session completed (nominal load)','Verified','green');
+setInputs(PRESETS.self);setEnv();setScan('retina');pickOrgan('brain');renderTasks();resizeECG();drawECG();speUI();
+</script>
+</body>
+</html>

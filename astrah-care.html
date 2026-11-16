@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ASTRAH Care | Autonomous Medical HUD (Simulation)</title>
+<style>
+:root{--bg:#050914;--card:#111b2e;--bd:rgba(56,189,248,.2);--bs:rgba(255,255,255,.09);--cy:#38BDF8;--bl:#2563EB;--gr:#10B981;--am:#F59E0B;--rd:#EF4444;--tx:#F8FAFC;--mu:#94A3B8;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,select,input{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid #fff;outline-offset:2px}
+header{position:sticky;top:0;z-index:50;background:#060a16f2;border-bottom:1px solid var(--bd);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem}
+.badge{width:42px;height:42px;border-radius:10px;overflow:hidden;border:1px solid var(--bd);background:#050914;flex-shrink:0}
+.badge img{width:100%;height:100%;object-fit:cover;display:block}
+.logo span{color:var(--cy)}
+.demo{flex:1;min-width:240px;max-width:620px;background:#f59e0b26;border:1px solid var(--am);border-radius:10px;color:#FDE68A;text-align:center;font-size:.72rem;font-weight:700;padding:6px 12px}
+.sos{background:linear-gradient(135deg,#EF4444,#B91C1C);border:1px solid #FCA5A5;padding:8px 14px;border-radius:10px;font-weight:700;color:#fff}
+.wrap{max-width:1400px;margin:0 auto;padding:18px 20px 40px;display:grid;grid-template-columns:270px minmax(0,1fr);gap:18px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+.side{display:flex;flex-direction:column;gap:12px;align-self:start}
+.box{background:var(--card);border:1px solid var(--bs);border-radius:14px;padding:14px}
+h4,h3{margin-bottom:8px}h4{font-size:.85rem}
+.sub{font-size:.8rem;color:var(--mu);margin-bottom:10px}
+.b1,.b2,select{background:#0a101e;border:1px solid var(--bd);padding:8px 11px;border-radius:10px;font-size:.8rem;font-weight:700}
+.b1{color:var(--cy)}.b1.on{border-color:var(--gr);color:#34D399}.b2{color:var(--mu)}
+.side select,.side .b1{width:100%}
+.cm{width:100%;display:flex;align-items:center;gap:8px;text-align:left;background:#0a101e;border:1px solid var(--bs);border-radius:11px;padding:9px;margin-bottom:6px}
+.cm.on{border-color:var(--cy)}.cm small{display:block;font-size:.68rem;color:var(--mu)}.cm div{flex:1;min-width:0}
+.dot{width:10px;height:10px;border-radius:50%}
+nav{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+nav button{background:var(--card);border:1px solid var(--bs);padding:9px 15px;border-radius:12px;font-weight:700;font-size:.85rem;color:var(--mu)}
+nav button.on{border-color:var(--cy);color:#fff;background:#2563eb4d}
+.view{display:none}.view.on{display:block}
+.vitals{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.vc{background:var(--card);border:1px solid var(--bs);border-top:4px solid var(--gr);border-radius:14px;padding:14px}
+.vc.amber{border-top-color:var(--am)}.vc.red{border-top-color:var(--rd)}
+.vt{font-size:.72rem;font-weight:700;color:var(--mu);margin-bottom:6px}.vn{font-size:1.6rem;font-weight:800;margin-bottom:6px}
+.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.72rem;font-weight:700}
+.tag.green{background:#10b9812e;color:#34D399}.tag.amber{background:#f59e0b2e;color:#FBBF24}.tag.red{background:#ef44442e;color:#F87171}
+.g2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}@media(max-width:900px){.g2{grid-template-columns:1fr}}
+#ecg{width:100%;height:110px;background:#050914;border:1px solid var(--bd);border-radius:12px;display:block;margin-bottom:10px}
+.env{background:#38bdf817;border:1px solid var(--bd);padding:10px 12px;border-radius:12px;font-size:.83rem}
+.qi{display:grid;grid-template-columns:1fr 1fr;gap:9px}.qi label{display:block;font-size:.73rem;color:var(--mu);margin-bottom:3px}
+.qi input{width:100%;background:#050914;border:1px solid var(--bs);padding:8px;border-radius:8px;font-weight:700}
+.ms{background:#050914b8;border-left:3px solid var(--cy);padding:10px 13px;border-radius:0 10px 10px 0;font-size:.85rem;line-height:1.45;margin-top:10px}
+.ms strong{display:block;font-size:.72rem;text-transform:uppercase;color:var(--cy);margin-bottom:2px}
+.op{display:block;width:100%;text-align:left;background:#0a101e;border:1px solid var(--bs);padding:10px 12px;border-radius:11px;margin-bottom:7px;font-weight:600}
+.op.on{border-color:var(--cy);background:#38bdf82e}
+.task{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);border:1px solid var(--bs);border-radius:13px;padding:13px 15px;margin-bottom:9px}
+.task.done{background:#10b9812a;border-color:#10b98180}.task small{display:block;color:var(--mu);font-size:.76rem}
+.bar{height:8px;background:#ffffff14;border-radius:99px;overflow:hidden;margin:8px 0 14px}.bar i{display:block;height:100%;background:var(--gr);transition:width .4s}
+.logs{display:flex;flex-direction:column;gap:7px;max-height:440px;overflow-y:auto}
+.le{background:#050914b8;border:1px solid var(--bs);border-left:3px solid var(--cy);padding:9px 12px;border-radius:8px;font-size:.8rem;display:flex;justify-content:space-between;gap:10px}
+#toasts{position:fixed;bottom:18px;right:18px;z-index:400;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:#0a101ef5;border:1px solid var(--bd);border-left:4px solid var(--cy);padding:11px 14px;border-radius:10px;font-size:.83rem;font-weight:600;max-width:320px}
+.ov{position:fixed;inset:0;background:#03060cdb;display:none;place-items:center;padding:16px;z-index:150;overflow:auto}.ov.open{display:grid}
+.sm{background:#170B0F;border:2px solid var(--rd);border-radius:18px;max-width:600px;width:100%;padding:20px}
+.st{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}@media(max-width:520px){.st{grid-template-columns:1fr 1fr}}
+.st button{background:#ffffff0f;border:1px solid #ef444466;padding:8px 4px;border-radius:8px;font-size:.74rem;font-weight:700}.st button.on{background:var(--rd)}
+.met{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#ef444429;border:1px solid #ef444473;padding:10px 12px;border-radius:12px;margin-bottom:12px;font-size:.8rem}
+.beat{width:24px;height:24px;border-radius:50%;background:var(--rd);animation:cb .545s infinite}
+@keyframes cb{50%{transform:scale(1.4);opacity:.5}}
+.ss{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}@media(max-width:520px){.ss{grid-template-columns:1fr}}
+.step{text-align:left;background:#ffffff0f;border:1px solid #ffffff14;padding:10px;border-radius:10px;font-size:.8rem}.step.on{background:#10b9812e;border-color:var(--gr)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div id="toasts" aria-live="polite"></div>
+<header>
+<div class="logo"><div class="badge"><img alt="ASTRAH Care logo" src="data:image/jpeg;base64,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"></div><div>ASTRAH <span>Care</span></div></div>
+<div class="demo" role="note">SIMULATION / DEMO ONLY: not medical advice, not a medical device, not affiliated with NASA. In a real emergency follow official procedures.</div>
+<button class="sos" onclick="sosOpen(true)">🚨 0G EMERGENCY</button>
+</header>
+<div class="wrap">
+<aside class="side">
+<div class="box"><h4>👥 Crew (by health priority)</h4><div id="crewList"></div></div>
+<div class="box"><h4>⌚ Smartwatch</h4><button class="b1" id="simBtn" onclick="toggleSim()">🔄 Simulate Watch</button></div>
+<div class="box"><h4>🌍 Environment</h4><select id="envSel" onchange="setEnv()" aria-label="Environment"><option value="transit">🚀 Mars Transit (0G)</option><option value="station">🛰️ Orbital Station</option><option value="moon">🌑 Lunar Base (0.16G)</option><option value="eva">👨‍🚀 EVA Suit</option></select></div>
+</aside>
+<main>
+<nav id="nav"><button class="on" data-t="dash">📊 Vital Signs</button><button data-t="body">🧬 Body Systems</button><button data-t="tasks">🎯 Countermeasures</button><button data-t="logs">📡 Log <span id="logCount">0</span></button></nav>
+
+<section id="v-dash" class="view on">
+<div class="vitals" id="vitals"></div>
+<div class="g2">
+<div class="box"><h3 id="crewBadge"></h3><canvas id="ecg"></canvas><div class="env" id="envTip"></div></div>
+<div class="box"><h3>Self-assessment</h3><p class="sub">Readings are assessed live and logged every 2 minutes (<b id="timer">02:00</b>).</p>
+<div class="qi" id="inputs"></div><div class="ms" id="diag"></div></div>
+</div></section>
+
+<section id="v-body" class="view"><div class="g2"><div class="box"><h3>Systems</h3><div id="organs"></div></div>
+<div class="box"><h3 id="oT"></h3><span class="tag" id="oTag"></span>
+<div class="ms" id="oCasc" style="border-color:var(--rd)"></div>
+<div class="ms"><strong>Why in space?</strong><span id="oWhy"></span></div>
+<div class="ms" style="border-color:var(--gr)"><strong style="color:var(--gr)">Measure without a doctor</strong><span id="oHow"></span></div>
+<div class="ms" style="border-color:var(--am)"><strong style="color:var(--am)">Countermeasure (illustrative)</strong><span id="oAct"></span></div></div></div></section>
+
+<section id="v-tasks" class="view"><div class="box"><h3>Daily Preventive Routine (Demo)</h3><p class="sub">Complete all 4 countermeasures for the simulated <b>Flight-Ready</b> status.</p>
+<b id="pct">0%</b><div class="bar"><i id="barFill"></i></div><div id="tasks"></div><button class="b2" onclick="resetTasks()">Reset</button></div></section>
+
+<section id="v-logs" class="view"><div class="box"><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin-bottom:10px"><h3>Autonomous Log</h3><span><button class="b2" onclick="autoCycle(true)">⚡ Run 2-min cycle</button> <button class="b1" onclick="exportReport()">⬇️ Download (.TXT)</button></span></div><div class="logs" id="logList"></div></div></section>
+</main></div>
+
+<div class="ov" id="ov"><div class="sm" role="dialog" aria-modal="true" aria-labelledby="sosT">
+<div style="display:flex;justify-content:space-between"><h2 id="sosT" style="color:#FCA5A5;font-size:1.1rem">🚨 0G EMERGENCY ASSISTANT (SIMULATION)</h2><button id="sosClose" aria-label="Close" onclick="sosOpen(false)" style="background:none;border:0;font-size:1.3rem">✕</button></div>
+<p style="font-size:.72rem;color:#FECACA;margin-top:6px">Training simulation only. Contact a flight surgeon.</p>
+<div class="st" id="sosTabs"></div>
+<div class="met"><div style="display:flex;align-items:center;gap:10px"><div class="beat"></div><strong>CPR METRONOME 110 BPM</strong></div><button id="metBtn" class="b1" onclick="toggleMet()">🔊 Sound</button></div>
+<div class="ss" id="steps"></div>
+<button class="sos" style="width:100%;padding:12px" onclick="sosSave()">📝 SAVE ALERT TO LOG (SIMULATED)</button></div></div>
+
+<script>
+const $=id=>document.getElementById(id),clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const toast=(m,c='#38BDF8')=>{const t=document.createElement('div');t.className='toast';t.style.borderLeftColor=c;t.textContent=m;$('toasts').append(t);setTimeout(()=>t.remove(),3200)};
+const P={self:{name:'Cmdr. Leo',role:'Commander',hr:72,sys:118,dia:76,ox:98,gl:108,sl:5.8},mate:{name:'Eng. Maya',role:'Flight Engineer',hr:112,sys:136,dia:88,ox:93,gl:96,sl:7.4},doc:{name:'Dr. Aiko',role:'Flight Surgeon',hr:64,sys:112,dia:72,ox:99,gl:92,sl:7.2},pilot:{name:'Cpt. Omar',role:'Pilot',hr:88,sys:126,dia:82,ox:96,gl:118,sl:6.4}};
+const KEYS=Object.keys(P),data={},tasks={};KEYS.forEach(k=>{const{name,role,...v}=P[k];data[k]={...v};tasks[k]=[k==='self',0,0,0].map(Boolean)});
+let crew='self',bpm=72;
+const RANK={green:0,amber:1,red:2},COL={green:'var(--gr)',amber:'var(--am)',red:'var(--rd)'};
+const worst=(...s)=>s.reduce((a,b)=>RANK[b]>RANK[a]?b:a,'green');
+const band=(v,g,a)=>v>=g[0]&&v<=g[1]?'green':v>=a[0]&&v<=a[1]?'amber':'red';
+const FIELDS=[['hr','Pulse (BPM)',20,250],['ox','SpO₂ (%)',50,100],['sys','Systolic',50,260],['dia','Diastolic',30,160],['gl','Glucose (mg/dL)',20,600],['sl','Sleep (h)',0,24]];
+function read(){const o={};FIELDS.forEach(([k,,lo,hi])=>{const n=parseFloat($('in-'+k).value);o[k]=Number.isFinite(n)?clamp(n,lo,hi):P[crew][k]});return o}
+function assess(v){const s={hr:band(v.hr,[60,100],[50,120]),bp:worst(band(v.sys,[90,119],[85,139]),band(v.dia,[60,79],[55,89])),ox:v.ox>=95?'green':v.ox>=90?'amber':'red',gl:band(v.gl,[70,99],[60,125]),sl:v.sl>=7?'green':v.sl>=6?'amber':'red'};s.any=worst(s.hr,s.bp,s.ox,s.gl,s.sl);return s}
+const LAB={hr:{green:'Normal (60-100)',amber:'Watch rhythm',red:'Cardiac alert'},bp:{green:'Normal (<120/80)',amber:'Elevated / high',red:'Pressure alert'},ox:{green:'Normal (≥95%)',amber:'O₂ caution',red:'Hypoxia risk'},gl:{green:'Normal (<100)',amber:'Mild caution',red:'Critical glucose'},sl:{green:'Well rested',amber:'Light sleep',red:'Deficit (<6h)'}};
+const CARDS=[['hr','❤️ HEART RATE',v=>v.hr+' BPM'],['bp','🩺 BLOOD PRESSURE',v=>v.sys+'/'+v.dia],['ox','🫁 OXYGEN SpO₂',v=>v.ox+'%'],['gl','🩸 GLUCOSE',v=>v.gl],['sl','🌙 SLEEP',v=>v.sl+'h']];
+$('vitals').innerHTML=CARDS.map(c=>`<div class="vc" id="c-${c[0]}"><div class="vt">${c[1]}</div><div class="vn" id="n-${c[0]}"></div><span class="tag" id="t-${c[0]}"></span></div>`).join('');
+$('inputs').innerHTML=FIELDS.map(f=>`<div><label for="in-${f[0]}">${f[1]}</label><input type="number" id="in-${f[0]}" min="${f[2]}" max="${f[3]}" step="any"></div>`).join('');
+FIELDS.forEach(f=>$('in-'+f[0]).addEventListener('input',sync));
+
+/* log */
+const logs=[];let secs=120;
+function addLog(text,badge='Auto-saved',color='green'){const time=new Date().toLocaleTimeString();logs.unshift({time,text,badge});
+  const d=document.createElement('div');d.className='le';const a=document.createElement('div');a.textContent='['+time+'] '+text;const t=document.createElement('span');t.className='tag '+color;t.textContent=badge;d.append(a,t);$('logList').prepend(d);$('logCount').textContent=logs.length}
+function autoCycle(manual){const v=read(),s=assess(v),is=[];
+  if(s.hr!=='green')is.push('HR '+v.hr);if(s.bp!=='green')is.push('BP '+v.sys+'/'+v.dia);if(s.ox!=='green')is.push('SpO₂ '+v.ox+'%');if(s.gl!=='green')is.push('Glucose '+v.gl);if(s.sl!=='green')is.push('Sleep '+v.sl+'h');
+  const dn=tasks[crew].filter(Boolean).length;if(dn<4)is.push('Duties '+dn+'/4');
+  const c=s.any==='red';addLog('[AUTO-2MIN] '+P[crew].name+' • HR '+v.hr+' | BP '+v.sys+'/'+v.dia+' | SpO₂ '+v.ox+'% | Glc '+v.gl+' | Sleep '+v.sl+'h → '+(is.length?'Deviations: '+is.join(', '):'All nominal'),c?'Auto-Critical':is.length?'Auto-Caution':'Auto-Optimal',c?'red':is.length?'amber':'green');
+  secs=120;toast(manual?'⚡ Cycle run':'📡 Log saved (2-min cycle)',c?'#EF4444':'#10B981')}
+setInterval(()=>{if(document.hidden)return;if(--secs<=0)autoCycle(false);$('timer').textContent=String(secs/60|0).padStart(2,'0')+':'+String(secs%60).padStart(2,'0')},1000);
+function exportReport(){const c='ASTRAH CARE - SPACE MEDICAL TELEMETRY REPORT (SIMULATION)\n==========================================\n'+logs.slice().reverse().map(l=>'['+l.time+'] '+l.text+' ('+l.badge+')').join('\n');
+  const u=URL.createObjectURL(new Blob([c],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='ASTRAH_Telemetry_'+new Date().toISOString().slice(0,10)+'.txt';document.body.append(a);a.click();a.remove();URL.revokeObjectURL(u)}
+
+/* vitals */
+function sync(){const v=read(),s=assess(v);bpm=v.hr;data[crew]=v;
+  CARDS.forEach(([k,,f])=>{$('n-'+k).textContent=f(v);$('c-'+k).className='vc '+(s[k]==='green'?'':s[k]);const t=$('t-'+k);t.className='tag '+s[k];t.textContent=LAB[k][s[k]]});
+  const n=P[crew].name,d=$('diag');
+  const m={red:['var(--rd)','#FCA5A5','🚨 Automatic alert','Critical readings for '+n+'. Check Body Systems or open the 0G Emergency assistant.'],amber:['var(--am)','#FBBF24','⚠️ Automatic caution','Out-of-range readings for '+n+'; logged at the next 2-minute cycle.'],green:['var(--gr)','#34D399','✅ Nominal','All readings for '+n+' are inside general adult reference ranges.']}[s.any];
+  d.style.borderLeftColor=m[0];d.innerHTML='<strong style="color:'+m[1]+'">'+m[2]+'</strong><span>'+m[3]+'</span>';
+  organs(v,s);renderCrew()}
+function setInputs(p){FIELDS.forEach(([k])=>$('in-'+k).value=p[k])}
+
+/* crew */
+function renderCrew(){const arr=KEYS.map(k=>{const v=data[k],s=assess(v),is=[];['hr','bp','ox','gl','sl'].forEach(x=>{if(s[x]!=='green')is.push({hr:'HR '+v.hr,bp:'BP '+v.sys+'/'+v.dia,ox:'SpO₂ '+v.ox+'%',gl:'Glc '+v.gl,sl:'Sleep '+v.sl+'h'}[x])});return{k,s,is,score:RANK[s.any]*100+is.length*10}}).sort((a,b)=>b.score-a.score||P[a.k].name.localeCompare(P[b.k].name));
+  const box=$('crewList');box.innerHTML='';
+  arr.forEach((c,i)=>{const b=document.createElement('button');b.className='cm'+(c.k===crew?' on':'');b.setAttribute('aria-pressed',c.k===crew);
+    b.innerHTML='<span class="dot" style="background:'+COL[c.s.any]+'"></span><div><strong></strong><small></small></div><span class="tag '+c.s.any+'">'+{red:'Critical',amber:'Caution',green:'Stable'}[c.s.any]+'</span>';
+    b.querySelector('strong').textContent=(i+1)+'. '+P[c.k].name;b.querySelector('small').textContent=P[c.k].role+' • '+(c.is.join(' • ')||'All nominal');b.onclick=()=>switchCrew(c.k);box.append(b)})}
+function switchCrew(k){if(k===crew)return;if(simT)toggleSim();data[crew]=read();crew=k;$('crewBadge').textContent='PROFILE: '+P[k].name.toUpperCase();setInputs(data[k]);renderTasks();sync();toast('Active profile: '+P[k].name)}
+
+/* environment */
+const ENV={transit:['🚀','Mars Transit (0G):','Weightlessness shifts about 2 liters of fluid toward the head; thigh cuffs and lower body negative pressure are under study.'],station:['🛰️','Orbital Station:','Crew exercises about 2.5 h/day, 6 days/week to limit bone and muscle loss.'],moon:['🌑','Lunar Base (0.16 g):','Partial gravity still challenges muscle and bone.'],eva:['👨‍🚀','EVA Suit:','Risk of hypoxia and decompression at low suit pressure. Watch SpO₂ and follow oxygen pre-breathe.']};
+function setEnv(){const d=ENV[$('envSel').value];$('envTip').innerHTML='<span style="font-size:1.4rem">'+d[0]+'</span> <strong>'+d[1]+'</strong> '+d[2]}
+
+/* body systems */
+const O={brain:['🧠 Brain & Vision (SANS)','Headward fluid shift (~2 L) is a leading hypothesis for optic disc swelling and eyeball flattening (SANS); the exact cause is not fully understood.','On the ISS, SANS is tracked with OCT imaging, visual field and acuity tests.','Thigh cuffs and lower body negative pressure are still under study.'],
+lungs:['🫁 Lungs & Oxygenation','Moving to a lower-pressure suit can allow nitrogen bubbles (decompression) or oxygen to drop.','Pulse oximeter for 10 s (goal ≥95% SpO₂); check suit pressure.','Follow the pure-oxygen pre-breathe protocol before each spacewalk.'],
+heart:['🫀 Heart & Circulation','Fluid shift changes cardiovascular function; after return many astronauts show orthostatic intolerance.','Smartwatch or chest ECG patch for 5 resting minutes.','Aerobic exercise (30–40 min at 70–85% max HR) plus steady hydration.'],
+kidney:['🧬 Kidney & Immunity','Bone loss raises urinary calcium and astronauts tend to drink less, raising kidney-stone risk.','Track urine volume (target ~2 L/day) and chemistry.','Hydrate to ~2 L/day urine output; potassium citrate only if prescribed.'],
+bones:['🦴 Bones & Muscles','Without gravity loading, bone density drops about 1–1.5% per month.','Blood/urine bone-turnover markers while logging exercise loads.','Resistive (ARED) and aerobic exercise ~6 days/week, enough energy and vitamin D (25 µg/day).']};
+let organ='brain';
+$('organs').innerHTML=Object.keys(O).map(k=>`<button class="op" id="p-${k}" data-o="${k}"><span id="d-${k}" style="color:var(--gr)">●</span> ${O[k][0]}</button>`).join('');
+$('organs').addEventListener('click',e=>{const b=e.target.closest('.op');if(b)pick(b.dataset.o)});
+function organs(v,s){const hi=s.hr!=='green',bi=s.bp!=='green',oi=s.ox!=='green',gi=s.gl!=='green',si=s.sl!=='green';
+  const st={brain:si||bi||oi?(v.sl<6||v.ox<90?'red':'amber'):'green',lungs:oi?(v.ox<90?'red':'amber'):'green',heart:hi||bi||oi?(v.hr>110||v.sys>139?'red':'amber'):'green',kidney:gi||bi?(v.gl>139?'red':'amber'):'green',bones:'red'};
+  for(const k in st)$('d-'+k).style.color=COL[st[k]];
+  const t=$('oTag');t.className='tag '+st[organ];t.textContent={green:'Optimal',amber:'Caution',red:'0G Alert'}[st[organ]];
+  const c=[];if(oi)c.push('<b>Lungs (SpO₂ '+v.ox+'%) → Heart &amp; Brain:</b> low saturation speeds the heart ('+v.hr+' BPM) and reduces brain oxygenation.');
+  if(hi||bi)c.push('<b>Heart/Pressure ('+v.sys+'/'+v.dia+', '+v.hr+' BPM) → Brain &amp; Kidney:</b> abnormal pressure plus fluid shift loads the optic nerve and renal filtration.');
+  if(si||gi)c.push('<b>Sleep ('+v.sl+'h) &amp; Glucose ('+v.gl+') → Immunity:</b> sleep deficit raises cortisol and can impair glucose regulation.');
+  c.push('<b>Bones (0G) → Kidney:</b> demineralization releases calcium, raising stone risk without hydration.');
+  $('oCasc').innerHTML='<strong style="color:#FCA5A5">🔗 Active interconnections</strong>'+c.join('<br>• ')}
+function pick(k){organ=k;document.querySelectorAll('.op').forEach(b=>b.classList.toggle('on',b.id==='p-'+k));const d=O[k];$('oT').textContent=d[0];$('oWhy').textContent=d[1];$('oHow').textContent=d[2];$('oAct').textContent=d[3];sync()}
+
+/* tabs */
+let tab='dash';
+$('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.t;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+tab));document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));if(tab==='dash')resizeECG()});
+
+/* ECG (paused when hidden) */
+const cv=$('ecg'),cx=cv.getContext('2d');let ex=0;
+const resizeECG=()=>{cv.width=cv.offsetWidth||500;cv.height=cv.offsetHeight||110};addEventListener('resize',resizeECG);
+(function draw(){if(tab==='dash'&&!document.hidden){cx.fillStyle='rgba(5,9,20,.1)';cx.fillRect(0,0,cv.width,cv.height);const m=cv.height/2,c=ex%140;let y=m;
+  if(c>55&&c<62)y=m-12;else if(c>=62&&c<66)y=m+14;else if(c>=66&&c<72)y=m-44;else if(c>=72&&c<78)y=m+22;else if(c>=90&&c<105)y=m-13;
+  cx.fillStyle=bpm>100||bpm<50?'#EF4444':'#38BDF8';cx.beginPath();cx.arc(ex%cv.width,y,2.3,0,7);cx.fill();ex+=bpm/60*2.6}requestAnimationFrame(draw)})();
+
+/* watch simulator */
+let simT=null;
+function toggleSim(){const b=$('simBtn');
+  if(simT){clearInterval(simT);simT=null;b.classList.remove('on');b.textContent='🔄 Simulate Watch';return}
+  b.classList.add('on');b.textContent='🟢 Simulated Watch ON';toast('⌚ Simulating pulse, pressure and oxygen','#10B981');
+  simT=setInterval(()=>{const v=read(),r=n=>Math.floor(Math.random()*n)-(n>>1);
+    setInputs({hr:clamp(v.hr+r(5),56,132),sys:clamp(v.sys+r(5),98,146),dia:clamp(v.dia+r(3),62,94),ox:clamp(v.ox+r(3),91,100),gl:v.gl,sl:v.sl});sync()},1200)}
+
+/* countermeasures */
+const TASKS=[['60 min Resistive Exercise (ARED)','Part of the ~2.5 h/day, 6 days/week ISS exercise block'],['30–40 min Aerobic Exercise','Typically 70–85% of max heart rate'],['Hydration for ~2 L/day urine output','Helps prevent kidney stones'],['Daily Wellbeing Check','Quick self-check of mood, sleep and fatigue']];
+function renderTasks(){const box=$('tasks');box.innerHTML='';
+  TASKS.forEach((t,i)=>{const on=tasks[crew][i],b=document.createElement('button');b.className='task'+(on?' done':'');b.setAttribute('aria-pressed',on);
+    b.innerHTML='<span><strong></strong><small></small></span><span class="tag green">'+(on?'✓ Done':'+50 XP')+'</span>';b.querySelector('strong').textContent=t[0];b.querySelector('small').textContent=t[1];
+    b.onclick=()=>{const was=tasks[crew].every(Boolean);tasks[crew][i]=!on;renderTasks();if(!was&&tasks[crew].every(Boolean)){addLog('100% daily routine completed by '+P[crew].name+' (FLIGHT-READY, simulated)','Certified','green');toast('🎉 Routine 100% complete!','#10B981')}};box.append(b)});
+  const p=tasks[crew].filter(Boolean).length*25;$('pct').textContent=p+'% complete';$('barFill').style.width=p+'%'}
+function resetTasks(){tasks[crew]=[false,false,false,false];renderTasks()}
+
+/* emergency */
+const SOS={chest:['Chest Pain / Collapse',[['Secure the crewmate:','Strap to the medical restraint.'],['100% oxygen:','Apply a high-flow mask; check carotid pulse up to 10 s.'],['ECG pads / AED:','Attach pads; the defibrillator analyzes the rhythm.'],['Ground telemetry:','Send a priority vitals packet to the Flight Surgeon.']]],
+hypoxia:['EVA Hypoxia / Decompression',[['Repressurize:','Bring the crewmember into the airlock and raise pressure.'],['Pure oxygen:','Give 100% O₂ per procedure.'],['Watch SpO₂:','Confirm saturation rises above 95%.'],['Report EVA:','Send the suit pressure log to Mission Control.']]],
+rad:['Solar Storm (SPE)',[['Shielded shelter:','Move all crew to the central water-shielded module.'],['Read dosimeters:','Scan each personal dosimeter.'],['Hydration & symptoms:','Keep fluids up; medication only as directed by the flight surgeon.'],['Await all-clear:','Stay sheltered until sensors confirm the storm has passed.']]],
+trauma:['Bleeding in 0G',[['Containment:','Hemostatic gauze with direct pressure to avoid fluid dispersal.'],['Tourniquet:','If limb bleeding persists, apply above the wound per training.'],['Ultrasound:','Check for internal bleeding.'],['Vital checks:','Monitor blood pressure every 5 min and sync with Earth.']]]};
+const TABN={chest:'🫀 Chest Pain',hypoxia:'🫁 EVA Hypoxia',rad:'☢️ Radiation',trauma:'🩹 Bleeding'};let sk='chest',last=null;
+$('sosTabs').innerHTML=Object.keys(SOS).map(k=>`<button data-k="${k}">${TABN[k]}</button>`).join('');
+$('sosTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)steps(b.dataset.k)});
+function steps(k){sk=k;document.querySelectorAll('#sosTabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));const box=$('steps');box.innerHTML='';
+  SOS[k][1].forEach((s,i)=>{const b=document.createElement('button');b.className='step';b.setAttribute('aria-pressed','false');b.innerHTML='<b>'+(i+1)+'.</b> <strong></strong> <span></span>';b.querySelector('strong').textContent=s[0];b.querySelector('span').textContent=s[1];
+    b.onclick=()=>{b.classList.toggle('on');b.setAttribute('aria-pressed',b.classList.contains('on'))};box.append(b)})}
+function sosOpen(o){$('ov').classList.toggle('open',o);if(o){last=document.activeElement;steps(sk);$('sosClose').focus()}else{if(metT)toggleMet();last&&last.focus()}}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&$('ov').classList.contains('open'))sosOpen(false)});
+function sosSave(){addLog('🚨 CRITICAL ALERT ('+SOS[sk][0]+') saved for '+P[crew].name+' (simulated, nothing transmitted)','URGENT (SIM)','red');sosOpen(false);toast('📝 Alert saved to log (simulation only)','#EF4444')}
+
+/* CPR metronome: Web Audio scheduling, 110 BPM */
+let ac=null,metT=null,nt=0;
+function toggleMet(){const b=$('metBtn');if(metT){clearInterval(metT);metT=null;b.textContent='🔊 Sound';return}
+  ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume();nt=ac.currentTime+.05;
+  metT=setInterval(()=>{while(nt<ac.currentTime+.15){const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.setValueAtTime(.18,nt);g.gain.exponentialRampToValueAtTime(.001,nt+.08);o.connect(g);g.connect(ac.destination);o.start(nt);o.stop(nt+.08);nt+=60/110}},25);b.textContent='🔇 Mute'}
+
+/* init */
+addLog('[INITIAL SELF-ASSESSMENT] Cmdr. Leo • HR 72 | BP 118/76 | SpO₂ 98% | Glucose 108 | Sleep 5.8h → Mild caution (Sleep/Glucose)','Auto-saved','amber');
+$('crewBadge').textContent='PROFILE: CMDR. LEO';setInputs(P.self);setEnv();pick('brain');renderTasks();resizeECG();
+</script></body></html>
